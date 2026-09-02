@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BK Pharmacy | Официальный каталог аптечных препаратов и витаминов</title>
+  <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bkGreen: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#16a34a',
+              600: '#15803d',
+              700: '#166534',
+              800: '#14532d',
+              900: '#052e16',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+            display: ['Outfit', 'Plus Jakarta Sans', 'sans-serif'],
+          },
+          boxShadow: {
+            'soft': '0 8px 30px -4px rgba(22, 163, 74, 0.08), 0 2px 8px -2px rgba(22, 163, 74, 0.04)',
+            'soft-hover': '0 20px 40px -6px rgba(22, 163, 74, 0.16), 0 6px 16px -2px rgba(22, 163, 74, 0.08)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Google Model Viewer for 3D Human Anatomy Models -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+
+  <!-- React 18 & Babel Standalone -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, h4, .font-display { font-family: 'Outfit', sans-serif; }
+    .glass-header {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #16a34a; }
+
+    /* 3D Anatomy Model Viewer & Hotspots */
+    model-viewer#bodyViewer {
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      --poster-color: transparent;
+      outline: none;
+    }
+
+    .hotspot-3d {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -50%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hotspot-3d:hover,
+    .hotspot-3d.active {
+      transform: translate(-50%, -50%) scale(1.3);
+      z-index: 50;
+    }
+
+    .hotspot-point {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #059669;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.35), 0 4px 12px rgba(4, 120, 87, 0.4);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+    }
+
+    .hotspot-point::after {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #34d399;
+    }
+
+    .hotspot-pulse {
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid #10b981;
+      animation: pulse-ring 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.5); opacity: 0.95; }
+      80%, 100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    .hotspot-tag {
+      position: absolute;
+      left: calc(100% + 8px);
+      top: 50%;
+      transform: translateY(-50%) translateX(-4px);
+      background: rgba(6, 78, 59, 0.95);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 50;
+    }
+
+    .hotspot-3d:hover .hotspot-tag,
+    .hotspot-3d.active .hotspot-tag {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(-50%) translateX(0);
+    }
+  </style>
+</head>
+<body class="bg-[#f7faf8] text-slate-900 antialiased selection:bg-emerald-600 selection:text-white min-h-screen">
+  <div id="root"></div>
+
+  <!-- Main Standalone Application Script in Babel JSX -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // --- TRANSLATIONS ---
+    const TRANSLATIONS = {
+      ru: {
+        brand_tagline: "Аптечная сеть нового поколения",
+        gmp_certified: "Европейские стандарты • Сертификаты GMP & ISO",
+        nav_catalog: "Каталог",
+        nav_needs: "3D Подбор",
+        nav_trust: "Преимущества",
+        nav_director: "О руководстве",
+        nav_contacts: "Контакты",
+        nav_admin: "Админ-панель",
+        search_placeholder: "Поиск препарата, симптома или состава...",
+        cart_title: "Корзина",
+        hero_badge: "Гарантия 100% подлинности • Прямые поставки",
+        hero_btn_catalog: "Смотреть каталог",
+        hero_btn_consult: "Консультация в Telegram",
+        needs_title: "Подбор препаратов по потребностям",
+        needs_subtitle: "Интерактивная 3D карта анатомии человека и ключевых сфер здоровья",
+        catalog_title: "Каталог сертифицированных препаратов",
+        catalog_subtitle: "Оригинальная продукция со строгим контролем хранения и бережной доставкой",
+        btn_add_to_cart: "В корзину",
+        btn_in_cart: "В корзине",
+        btn_details: "Инструкция",
+        currency: "сум",
+        in_stock: "В наличии",
+        out_of_stock: "Под заказ",
+        reviews_count: "отзывов",
+        cart_empty_title: "Ваша корзина пуста",
+        cart_empty_desc: "Выберите препараты в каталоге для оформления заказа",
+        cart_free_delivery_active: "Вам доступна бесплатная доставка!",
+        cart_subtotal: "Сумма товаров:",
+        cart_delivery: "Доставка:",
+        cart_delivery_free: "Бесплатно",
+        cart_total: "Итого к оплате:",
+        cart_btn_checkout: "Оформить заказ",
+        checkout_title: "Оформление заказа",
+        field_name: "Ваше имя и фамилия",
+        field_phone: "Номер телефона",
+        field_city: "Город доставки",
+        field_address: "Адрес доставки",
+        field_notes: "Комментарий",
+        btn_submit_order: "Отправить заказ в Telegram",
+        trust_title: "Почему нам доверяют тысячи семей",
+        director_section_title: "Официальное руководство сети",
+        footer_warning: "Внимание: Перед применением лекарственных средств ознакомьтесь с инструкцией или проконсультируйтесь с врачом.",
+        footer_rights: "Все права защищены. Сеть аптек «BK Pharmacy».",
+        admin_title: "Панель администратора BK Pharmacy",
+        admin_logout: "Выйти",
+        admin_tab_products: "Товары",
+        admin_tab_categories: "Категории",
+        admin_tab_orders: "Заказы",
+        admin_tab_settings: "Настройки сайта",
+        admin_btn_add_product: "Добавить препарат",
+        admin_save: "Сохранить изменения"
+      },
+      uz: {
+        brand_tagline: "Yangi avlod dorixonalar tarmog'i",
+        gmp_certified: "Yevropa standartlari • GMP & ISO sertifikatlari",
+        nav_catalog: "Katalog",
+        nav_needs: "3D Tanlov",
+        nav_trust: "Afzalliklar",
+        nav_director: "Rahbariyat",
+        nav_contacts: "Aloqa",
+        nav_admin: "Admin-panel",
+        search_placeholder: "Dori nomi, alomat yoki tarkib bo'yicha qidiruv...",
+        cart_title: "Savat",
+        hero_badge: "100% Asl mahsulot kafolati • To'g'ridan-to'g'ri yetkazish",
+        hero_btn_catalog: "Katalogni ko'rish",
+        hero_btn_consult: "Telegramda maslahat",
+        needs_title: "Preparatlarni ehtiyoj bo'yicha tanlash",
+        needs_subtitle: "Inson tanasining 3D interaktiv anatomik xaritasi va asosiy salomatlik sohalari",
+        catalog_title: "Sertifikatlangan dorilar katalogi",
+        catalog_subtitle: "Faqat saqlash va yetkazish harorat qoidalariga rioya qilingan asl mahsulotlar",
+        btn_add_to_cart: "Savatga",
+        btn_in_cart: "Savatda",
+        btn_details: "Qo'llanma",
+        currency: "so'm",
+        in_stock: "Mavjud",
+        out_of_stock: "Buyurtma asosida",
+        reviews_count: "ta sharh",
+        cart_empty_title: "Savatingiz hozircha bo'sh",
+        cart_empty_desc: "Buyurtma berish uchun katalogdan preparatlarni tanlang",
+        cart_free_delivery_active: "Siz uchun bepul yetkazib berish mavjud!",
+        cart_subtotal: "Mahsulotlar summasi:",
+        cart_delivery: "Yetkazib berish:",
+        cart_delivery_free: "Bepul",
+        cart_total: "Jami to'lov:",
+        cart_btn_checkout: "Buyurtma berish",
+        checkout_title: "Buyurtmani rasmiylashtirish",
+        field_name: "Ism va familiyangiz",
+        field_phone: "Telefon raqamingiz",
+        field_city: "Yetkazish shahri",
+        field_address: "Yetkazish manzili",
+        field_notes: "Izoh",
+        btn_submit_order: "Buyurtmani Telegramga yuborish",
+        trust_title: "Nima uchun minglab oilalar bizga ishonishadi",
+        director_section_title: "Tarmoqning rasmiy rahbariyati",
+        footer_warning: "Diqqat: Dori vositalarini qo'llashdan oldin yo'riqnoma bilan tanishib chiqing yoki shifokor bilan maslahatlashing.",
+        footer_rights: "Barcha huquqlar himoyalangan. «BK Pharmacy» dorixonalar tarmog'i.",
+        admin_title: "BK Pharmacy Administrator Paneli",
+        admin_logout: "Chiqish",
+        admin_tab_products: "Preparatlar",
+        admin_tab_categories: "Kategoriyalar",
+        admin_tab_orders: "Buyurtmalar",
+        admin_tab_settings: "Sayt sozlamalari",
+        admin_btn_add_product: "Dori qo'shish",
+        admin_save: "O'zgarishlarni saqlash"
+      }
+    };
+
+    // --- INITIAL DATA ---
+    const INITIAL_CATEGORIES = [
+      { id: 'all', slug: 'all', name_ru: 'Все препараты', name_uz: 'Barcha preparatlar' },
+      { id: 'vitamins_minerals', slug: 'vitamins_minerals', name_ru: 'Витамины и минералы', name_uz: 'Vitaminlar va minerallar' },
+      { id: 'immunity_energy', slug: 'immunity_energy', name_ru: 'Иммунитет и энергия', name_uz: 'Immunitet va quvvat' },
+      { id: 'sleep_stress', slug: 'sleep_stress', name_ru: 'Сон и антистресс', name_uz: 'Uyqu va antistress' },
+      { id: 'joints_muscles', slug: 'joints_muscles', name_ru: 'Суставы и мышцы', name_uz: 'Bo\'g\'imlar va mushaklar' },
+      { id: 'gastro_digestion', slug: 'gastro_digestion', name_ru: 'Пищеварение и ЖКТ', name_uz: 'Oshqozon va ichak' },
+      { id: 'women_health', slug: 'women_health', name_ru: 'Здоровье женщин и мам', name_uz: 'Ayollar va onalar' },
+      { id: 'kids_health', slug: 'kids_health', name_ru: 'Для детей', name_uz: 'Bolalar uchun' },
+      { id: 'veins_vessels', slug: 'veins_vessels', name_ru: 'Вены и сосуды', name_uz: 'Venalar va tomirlar' }
+    ];
+
+    const INITIAL_SETTINGS = {
+      contacts: {
+        director_name: "Шерматов Ботир Бахтиярович",
+        director_title_ru: "Генеральный директор аптечной сети BK Pharmacy",
+        director_title_uz: "BK Pharmacy dorixonalar tarmog'i bosh direktori",
+        phone: "+998 97 490 46 65",
+        telegram: "Botirbek_Baxtiyarovich",
+        telegram_url: "https://t.me/Botirbek_Baxtiyarovich",
+        email: "info@bk-pharmacy.uz",
+        address_ru: "г. Ташкент, Мирзо-Улугбекский р-н, ул. Зиёлилар, 4",
+        address_uz: "Toshkent sh., Mirzo Ulug'bek tumani, Ziyolilar ko'chasi, 4",
+        license_info_ru: "Лицензия на фармацевтическую деятельность № ФД-89412 от МЗ РУз",
+        license_info_uz: "O'zR SSV tomonidan berilgan farmatsevtik faoliyat litsenziyasi № FD-89412"
+      },
+      hero_content: {
+        badge_ru: "Сертифицированная аптечная сеть • Европейские стандарты GMP",
+        badge_uz: "Sertifikatlangan dorixonalar tarmog'i • Yevropa GMP standartlari",
+        subtitle_ru: "Официальный каталог проверенных безрецептурных препаратов, витаминных комплексов и лечебных средств европейского качества с быстрой доставкой по Узбекистану.",
+        subtitle_uz: "O'zbekiston bo'ylab tezkor yetkazib beriladigan, Yevropa sifatidagi haqiqiy retseptsiz dorilar, vitamin majmualari va shifobaxsh vositalarning rasmiy katalogi."
+      }
+    };
+
+    const INITIAL_PRODUCTS = [
+      {
+        id: "p1",
+        category_id: "vitamins_minerals",
+        name_ru: "КОЛЕДАН капли",
+        name_uz: "KOLEDAN tomchilari",
+        form_ru: "Капли для приема внутрь",
+        form_uz: "Ichish uchun tomchilar",
+        dosage_ru: "Флакон 20 мл (15 000 МЕ)",
+        dosage_uz: "Flakon 20 ml (15 000 XB)",
+        price: 54000,
+        old_price: 62000,
+        image_url: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80",
+        description_ru: "Высококачественный витамин D3 в биодоступной форме для укрепления иммунитета, костей и зубов.",
+        description_uz: "Immunitet, suyak va tishlarni mustahkamlash uchun biofaol D3 vitamini tomchilari.",
+        composition_ru: "Холекальциферол (витамин D3) 15 000 МЕ/мл.",
+        usage_ru: "По 1-2 капли в день во время еды.",
+        rating: 4.9,
+        reviews_count: 178,
+        in_stock: true,
+        badge_type: "bestseller",
+        badge_ru: "Хит продаж",
+        badge_uz: "Hit sotuv"
+      },
+      {
+        id: "p2",
+        category_id: "vitamins_minerals",
+        name_ru: "КОЛЕДАН капсулы",
+        name_uz: "KOLEDAN kapsulalari",
+        form_ru: "Мягкие капсулы",
+        form_uz: "Yumshoq kapsulalar",
+        dosage_ru: "30 капсул (5000 МЕ)",
+        dosage_uz: "30 kapsula (5000 XB)",
+        price: 68000,
+        old_price: 78000,
+        image_url: "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=600&auto=format&fit=crop&q=80",
+        description_ru: "Витамин D3 в терапевтической дозировке 5000 МЕ для восполнения дефицита солнечного витамина.",
+        description_uz: "Quyosh vitamini tanqisligini to'ldirish va suyak zichligini oshirish uchun 5000 XB D3 vitamini.",
+        composition_ru: "Холекальциферол 5000 МЕ в оливковом масле.",
+        usage_ru: "По 1 капсуле в день во время еды.",
+        rating: 4.9,
+        reviews_count: 134,
+        in_stock: true,
+        badge_type: "bestseller",
+        badge_ru: "Выбор врачей",
+        badge_uz: "Shifokorlar tanlovi"
+      },
+      {
+        id: "p3",
+        category_id: "women_health",
+        name_ru: "ЙОДОФОЛ",
+        name_uz: "YODOFOL",
+        form_ru: "Таблетки",
+        form_uz: "Tabletkalar",
+        dosage_ru: "30 таблеток",
+        dosage_uz: "30 tabletka",
+        price: 46000,
+        old_price: 52000,
+        image_url: "https://images.unsplash.com/photo-1550572017-edd951aa8f72?w=600&auto=format&fit=crop&q=80",
+        description_ru: "Сбалансированная комбинация фолиевой кислоты и йода для будущей мамы и плода.",
+        description_uz: "Homiladorlikni rejalashtirish, bo'lajak ona va homila salomatligi uchun foliy kislotasi va yod majmuasi.",
+        composition_ru: "Фолиевая кислота 400 мкг, калия йодид 200 мкг.",
+        usage_ru: "По 1 таблетке в день во время еды.",
+        rating: 5.0,
+        reviews_count: 312,
+        in_stock: true,
+        badge_type: "premium",
+        badge_ru: "Для будущих мам",
+        badge_uz: "Bo'lajak onalar uchun"
+      },
+      {
+        id: "p4",
+        category_id: "women_health",
+        name_ru: "ЭМФЕТАЛ",
+        name_uz: "EMFETAL",
+        form_ru: "Таблетки",
+        form_uz: "Tabletkalar",
+        dosage_ru: "60 таблеток",
+        dosage_uz: "60 tabletka",
+        price: 125000,
+        old_price: 142000,
+        image_url: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=600&auto=format&fit=crop&q=80",
+        description_ru: "Премиальный мультивитаминный и минеральный комплекс для беременных и кормящих женщин.",
+        description_uz: "Homilador va emizikli ayollar uchun Yevropa sifatidagi premium multivitamin va mineral majmuasi.",
+        composition_ru: "12 витаминов и 9 минералов (хелатное железо, кальций, йод, цинк).",
+        usage_ru: "По 1 таблетке 2 раза в день во время еды.",
+        rating: 4.9,
+        reviews_count: 215,
+        in_stock: true,
+        badge_type: "premium",
+        badge_ru: "Премиум комплекс",
+        badge_uz: "Premium majmua"
+      },
+      {
+        id: "p5",
+        category_id: "immunity_energy",
+        name_ru: "ПОЛИЖЕН",
+        name_uz: "POLIJEN",
+        form_ru: "Капсулы",
+        form_uz: "Kapsulalar",
+        dosage_ru: "30 капсул",
+        dosage_uz: "30 kapsula",
+        price: 148000,
+        old_price: 165000,
+        image_url: "https://images.unsplash.com/photo-1577401239170-897942555fb3?w=600&auto=format&fit=crop&q=80",
+        description_ru: "Элитный комплекс с женьшенем, маточным молочком, пыльцой и коэнзимом Q10 для максимальной энергии.",
+        description_uz: "Jenshen, ona ari suti, gulchang va koenzim Q10 bilan maksimal energiya va tetiklik majmuasi.",
+        composition_ru: "Женьшень 40 мг, маточное молочко 10 мг, Q10, 12 витаминов.",
+        usage_ru: "По 1 капсуле утром во время завтрака.",
+        rating: 5.0,
+        reviews_count: 420,
+        in_stock: true,
+        badge_type: "bestseller",
+        badge_ru: "Энергия и молодость",
+        badge_uz: "Energiya va yoshlik"
+      },
+      {
+        id: "p6",
+        category_id: "immunity_energy",
+        name_ru: "РЕЙТОИЛ",
+        name_uz: "REYTOIL",
+        form_ru: "Капсулы",
+        form_uz: "Kapsulalar",
+        dosage_ru: "30 капсул",
+        dosage_uz: "30 kapsula",
+        price: 98000,
+        old_price: 112000,
+        image_url: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&auto=format&fit=crop&q=80",
+        description_ru: "Натуральный концентрат Омега-3 и витамина Е для здоровья сердца, сосудов и сияния кожи.",
+        description_uz: "Yurak, tomirlar va teri go'zalligi uchun toza dengiz baliqlari moyi Omega-3 va E vitamini.",
+        composition_ru: "Рыбий жир глубоководных рыб 1000 мг, витамин Е 12 мг.",
+        usage_ru: "По 1 капсуле 1-2 раза в день во время еды.",
+        rating: 4.8,
+        reviews_count: 160,
+        in_stock: true,
+        badge_type: "natural",
+        badge_ru: "100% Омега-3",
+        badge_uz: "100% Omega-3"
+      },
+      {
+        id: "p7",
+        category_id: "sleep_stress",
+        name_ru: "ВАМЕЛАН",
+        name_uz: "VAMELAN",
+        form_ru: "Мягкие капсулы",
+        form_uz: "Yumshoq kapsulalar",
+        dosage_ru: "30 капсул",
+        dosage_uz: "30 kapsula",
+        price: 92000,
+        old_price: 105000,
+        image_url: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&auto=format&fit=crop&q=80",
+        description_ru: "Растительный фитокомплекс тройного действия: валериана, мята и мелисса для спокойствия и сна.",
+        description_uz: "Tabiiy fitomajmua: valeriana, yalpiz va melissa stressni kamaytirish va tinch uyqu uchun.",
+        composition_ru: "Экстракт валерианы 125 мг, мяты 25 мг, мелиссы 25 мг.",
+        usage_ru: "При стрессе: 1-2 капсулы 2-3 раза в день; для сна: 1-2 капсулы перед сном.",
+        rating: 4.9,
+        reviews_count: 290,
+        in_stock: true,
+        badge_type: "natural",
+        badge_ru: "100% Травы",
+        badge_uz: "100% Tabiiy o'tlar"
+      },
+      {
+        id: "p8",
+        category_id: "joints_muscles",
+        name_ru: "ПРОТЕКТА",
+        name_uz: "PROTEKTA",
+        form_ru: "Шипучие таблетки",
+        form_uz: "Eruvchan tabletkalar",
+        dosage_ru: "20 шипучих таблеток",
+        dosage_uz: "20 eruvchan tabletka",
+        price: 115000,
+        old_price: 130000,
+        image_url: "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=600&auto=format&fit=crop&q=80",
+        description_ru: "Хондропротектор с глюкозамином, хондроитином и кальцием для гибкости суставов.",
+        description_uz: "Bo'g'imlar elastikligi va tog'ayni tiklash uchun glyukozamin, xondroitin va kalsiyli eruvchan tabletkalar.",
+        composition_ru: "Глюкозамина сульфат 750 мг, хондроитин 600 мг, кальций 500 мг, D3 400 МЕ.",
+        usage_ru: "По 1 таблетке в день, растворив в стакане воды.",
+        rating: 4.9,
+        reviews_count: 185,
+        in_stock: true,
+        badge_type: "bestseller",
+        badge_ru: "Здоровые суставы",
+        badge_uz: "Sog'lom bo'g'imlar"
+      },
+      {
+        id: "p9",
+        category_id: "kids_health",
+        name_ru: "САНОВИТ",
+        name_uz: "SANOVIT",
+        form_ru: "Сироп",
+        form_uz: "Sirop",
+        dosage_ru: "Флакон 100 мл",
+        dosage_uz: "Flakon 100 ml",
+        price: 52000,
+        old_price: 59000,
+        image_url: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&auto=format&fit=crop&q=80",
+        description_ru: "Поливитаминный сироп с фруктовым вкусом для роста, аппетита и крепкого иммунитета детей.",
+        description_uz: "Bolalarning sog'lom o'sishi, ishtaha va immunitet uchun mevali polivitamin siropi.",
+        composition_ru: "Комплекс витаминов A, D3, B1, B2, B6, B12, C, кальций.",
+        usage_ru: "Детям 1-5 лет по 5 мл в день; школьникам — по 10 мл.",
+        rating: 4.9,
+        reviews_count: 340,
+        in_stock: true,
+        badge_type: "bestseller",
+        badge_ru: "Любимый вкус детей",
+        badge_uz: "Bolalar sevimli ta'mi"
+      },
+      {
+        id: "p10",
+        category_id: "joints_muscles",
+        name_ru: "АРТРОКОЛ гель",
+        name_uz: "ARTROKOL gel",
+        form_ru: "Гель",
+        form_uz: "Gel",
+        dosage_ru: "Туба 45 г",
+        dosage_uz: "Tuba 45 g",
+        price: 48000,
+        old_price: 55000,
+        image_url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&auto=format&fit=crop&q=80",
+        description_ru: "Охлаждающий обезболивающий гель с кетопрофеном и лавандой при болях в суставах и мышцах.",
+        description_uz: "Bo'g'im va mushak og'rig'ida ketoprofen va lavanda moyi bilan tezkor sovutuvchi gel.",
+        composition_ru: "Кетопрофен 25 мг/г, лавандовое масло.",
+        usage_ru: "Наносить на болезненную зону 2-3 раза в день.",
+        rating: 4.9,
+        reviews_count: 142,
+        in_stock: true,
+        badge_type: "bestseller",
+        badge_ru: "Быстрое действие",
+        badge_uz: "Tezkor ta'sir"
+      }
+    ];
+
+    // 3D Guide Symptoms definition
+    const LEFT_ANATOMY = [
+      { id: 'sleep_stress', ru: 'Ясность ума и антистресс', uz: 'Tiniq fikr va antistress', organ_ru: 'Головной мозг и нервы', organ_uz: 'Bosh miya va asab', path: 'M 0 135 C 90 135, 120 138, 196 138' },
+      { id: 'joints_muscles', ru: 'Гибкость и суставы', uz: 'Bo\'g\'imlar va harakat', organ_ru: 'Суставы и хрящи', organ_uz: 'Bo\'g\'imlar va tog\'aylar', path: 'M 0 225 C 60 225, 90 255, 144 255' },
+      { id: 'gastro_digestion', ru: 'Легкость и пищеварение', uz: 'Oshqozon va yengillik', organ_ru: 'Желудок и кишечник', organ_uz: 'Oshqozon va ichak', path: 'M 0 315 C 90 315, 120 292, 196 292' },
+      { id: 'immunity_energy', ru: 'Свежесть дыхания и горло', uz: 'Nafas tozaligi va himoya', organ_ru: 'Дыхание и горло', organ_uz: 'Nafas yo\'llari va tomoq', path: 'M 0 405 C 90 405, 120 202, 196 202' }
+    ];
+
+    const RIGHT_ANATOMY = [
+      { id: 'vitamins_minerals', ru: 'Энергия и сияние молодости', uz: 'Energiya va yoshlik jilosi', organ_ru: 'Клетки и антиоксиданты', organ_uz: 'Hujayralar va tonus', path: 'M 400 135 C 310 135, 270 244, 196 244' },
+      { id: 'women_health', ru: 'Сияние материнства', uz: 'Onalik nuri va go\'zallik', organ_ru: 'Женское здоровье', organ_uz: 'Ayollar salomatligi', path: 'M 400 225 C 310 225, 280 340, 196 340' },
+      { id: 'veins_vessels', ru: 'Стройные легкие ноги', uz: 'Xushbichim yengil oyoqlar', organ_ru: 'Вены и сосуды ног', organ_uz: 'Venalar va tomirlar', path: 'M 400 315 C 310 315, 280 419, 200 419' },
+      { id: 'kids_health', ru: 'Забота о детях и мамах', uz: 'Bolalar va onalar parvarishi', organ_ru: 'Иммунитет малыша', organ_uz: 'Bola salomatligi', path: 'M 400 405 C 310 405, 290 223, 224 223' }
+    ];
+
+    const HOTSPOTS = [
+      { id: 'sleep_stress', top: '26%', left: '49%', ru: 'Ясность и сон', uz: 'Tiniq fikr' },
+      { id: 'immunity_energy', top: '38%', left: '49%', ru: 'Свежесть дыхания', uz: 'Erkin nafas' },
+      { id: 'vitamins_minerals', top: '46%', left: '49%', ru: 'Энергия и сияние', uz: 'Yoshlik nuri' },
+      { id: 'joints_muscles', top: '48%', left: '36%', ru: 'Гибкость суставов', uz: 'Yengil harakat' },
+      { id: 'kids_health', top: '42%', left: '56%', ru: 'Забота о детях', uz: 'Bolalar' },
+      { id: 'gastro_digestion', top: '55%', left: '49%', ru: 'Легкость в животе', uz: 'Yengil hazm' },
+      { id: 'women_health', top: '64%', left: '49%', ru: 'Сияние материнства', uz: 'Onalik nuri' },
+      { id: 'veins_vessels', top: '79%', left: '50%', ru: 'Стройные ноги', uz: 'Yengil oyoqlar' }
+    ];
+
+    // --- MAIN COMPONENT ---
+    function BKPharmacyApp() {
+      const [lang, setLang] = useState('ru');
+      const [cart, setCart] = useState([]);
+      const [isCartOpen, setIsCartOpen] = useState(false);
+      const [selectedProduct, setSelectedProduct] = useState(null);
+      const [selectedCategory, setSelectedCategory] = useState('all');
+      const [searchQuery, setSearchQuery] = useState('');
+      const [sortBy, setSortBy] = useState('popular');
+      const [currentPage, setCurrentPage] = useState(1);
+      const [isAdminMode, setIsAdminMode] = useState(false);
+      const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+      // Data state
+      const [products, setProducts] = useState(INITIAL_PRODUCTS);
+      const [categories, setCategories] = useState(INITIAL_CATEGORIES);
+      const [settings, setSettings] = useState(INITIAL_SETTINGS);
+      const [orders, setOrders] = useState([]);
+
+      const t = (key) => TRANSLATIONS[lang]?.[key] || key;
+
+      const addToCart = (prod, qty = 1) => {
+        setCart(prev => {
+          const ex = prev.find(i => i.id === prod.id);
+          if (ex) return prev.map(i => i.id === prod.id ? { ...i, quantity: i.quantity + qty } : i);
+          return [...prev, { ...prod, quantity: qty }];
+        });
+      };
+
+      const updateQty = (id, delta) => {
+        setCart(prev => prev.map(i => i.id === id ? { ...i, quantity: i.quantity + delta } : i).filter(i => i.quantity > 0));
+      };
+
+      const removeFromCart = (id) => setCart(prev => prev.filter(i => i.id !== id));
+      const clearCart = () => setCart([]);
+
+      const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
+      const cartTotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+
+      const handleSelectCategory = (catId) => {
+        setSelectedCategory(catId);
+        document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
+      };
+
+      const filtered = useMemo(() => {
+        return products.filter(p => {
+          if (selectedCategory !== 'all' && p.category_id !== selectedCategory) return false;
+          if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            const nRu = (p.name_ru || '').toLowerCase();
+            const nUz = (p.name_uz || '').toLowerCase();
+            if (!nRu.includes(q) && !nUz.includes(q)) return false;
+          }
+          return true;
+        }).sort((a, b) => {
+          if (sortBy === 'price_asc') return a.price - b.price;
+          if (sortBy === 'price_desc') return b.price - a.price;
+          return b.reviews_count - a.reviews_count;
+        });
+      }, [products, selectedCategory, searchQuery, sortBy]);
+
+      const paginatedProducts = filtered.slice((currentPage - 1) * 8, currentPage * 8);
+
+      const handleSendOrder = (customer) => {
+        const title = lang === 'uz' ? "💊 *Yangi buyurtma (BK Pharmacy):*\n\n" : "💊 *Новый заказ (BK Pharmacy):*\n\n";
+        let items = "";
+        cart.forEach((i, idx) => {
+          items += `${idx + 1}. *${lang === 'uz' ? i.name_uz : i.name_ru}* x ${i.quantity} = ${(i.price * i.quantity).toLocaleString()} ${t('currency')}\n`;
+        });
+        const total = `\n💰 *Итого:* ${cartTotal.toLocaleString()} ${t('currency')}\n`;
+        const client = `\n👤 *Покупатель:* ${customer.name}\n📞 *Тел:* ${customer.phone}\n📍 *Адрес:* ${customer.address}\n`;
+        
+        window.open(`https://t.me/Botirbek_Baxtiyarovich?text=${encodeURIComponent(title + items + total + client)}`, '_blank');
+        clearCart();
+        setIsCartOpen(false);
+        alert(lang === 'uz' ? "Buyurtmangiz muvaffaqiyatli Telegram orqali yuborildi!" : "Ваш заказ передан в Telegram!");
+      };
+
+      // ADMIN VIEW
+      if (isAdminMode) {
+        if (!isLoggedIn) {
+          return (
+            <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+              <div className="max-w-md w-full bg-white rounded-3xl p-8 space-y-6 shadow-2xl">
+                <button onClick={() => setIsAdminMode(false)} className="text-xs font-bold text-slate-500 hover:text-emerald-700">
+                  ← На сайт
+                </button>
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mx-auto text-xl font-bold">BK</div>
+                  <h2 className="text-xl font-black mt-2 font-display">{t('admin_title')}</h2>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-bold text-slate-600 block mb-1">Email</label>
+                    <input type="text" defaultValue="admin@bk-pharmacy.uz" className="w-full p-2.5 rounded-xl border text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-600 block mb-1">Пароль</label>
+                    <input type="password" defaultValue="admin123" className="w-full p-2.5 rounded-xl border text-xs" />
+                  </div>
+                  <button onClick={() => setIsLoggedIn(true)} className="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md hover:bg-emerald-700">
+                    Войти в систему
+                  </button>
+                  <p className="text-[11px] text-slate-400 text-center">Демо-доступ: admin@bk-pharmacy.uz / admin123</p>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="min-h-screen bg-slate-50">
+            <header className="bg-white border-b px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">BK</span>
+                <span className="font-bold text-slate-900">BK Pharmacy Admin</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <button onClick={() => setIsAdminMode(false)} className="text-xs font-bold text-emerald-700 hover:underline">
+                  Перейти на сайт
+                </button>
+                <button onClick={() => { setIsLoggedIn(false); setIsAdminMode(false); }} className="text-xs text-rose-600 font-bold">
+                  Выйти
+                </button>
+              </div>
+            </header>
+            <div className="max-w-6xl mx-auto p-6 space-y-6">
+              <div className="bg-white p-6 rounded-2xl border shadow-xs">
+                <h3 className="font-bold text-lg text-slate-800 mb-4">Управление товарами ({products.length} шт.)</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50 border-b font-bold text-slate-600">
+                      <tr>
+                        <th className="p-3">Фото</th>
+                        <th className="p-3">Название</th>
+                        <th className="p-3">Категория</th>
+                        <th className="p-3">Цена</th>
+                        <th className="p-3">Действия</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {products.map(p => (
+                        <tr key={p.id}>
+                          <td className="p-3"><img src={p.image_url} className="w-10 h-10 object-contain rounded bg-slate-50" /></td>
+                          <td className="p-3 font-bold">{p.name_ru}</td>
+                          <td className="p-3">{p.category_id}</td>
+                          <td className="p-3 font-semibold">{p.price.toLocaleString()} сум</td>
+                          <td className="p-3">
+                            <button onClick={() => {
+                              if(confirm('Удалить товар?')) setProducts(prev => prev.filter(x => x.id !== p.id));
+                            }} className="text-rose-600 hover:underline">Удалить</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // CLIENT STOREFRONT
+      return (
+        <div className="min-h-screen flex flex-col bg-[#f7faf8]">
+          
+          {/* Top Info Bar */}
+          <div className="bg-emerald-900 text-emerald-100 text-xs py-1.5 px-4 hidden sm:block">
+            <div className="max-w-7xl mx-auto flex justify-between items-center">
+              <span>{t('gmp_certified')}</span>
+              <div className="flex gap-4">
+                <a href="tel:+998974904665" className="hover:text-white">+998 97 490 46 65</a>
+                <a href="https://t.me/Botirbek_Baxtiyarovich" target="_blank" className="text-emerald-300 font-bold">@Botirbek_Baxtiyarovich</a>
+              </div>
+            </div>
+          </div>
+
+          {/* Header */}
+          <header className="sticky top-0 z-40 glass-header">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+              
+              {/* Logo */}
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                  BK
+                </div>
+                <div>
+                  <span className="text-xl font-black text-slate-900 font-display">
+                    BK <span className="text-emerald-600">Pharmacy</span>
+                  </span>
+                  <span className="block text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                    {t('brand_tagline')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Navigation Links */}
+              <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-600">
+                <a href="#symptoms-guide" className="hover:text-emerald-600 transition-colors font-bold text-emerald-700">{t('nav_needs')}</a>
+                <a href="#catalog" className="hover:text-emerald-600 transition-colors">{t('nav_catalog')}</a>
+                <a href="#trust" className="hover:text-emerald-600 transition-colors">{t('nav_trust')}</a>
+                <a href="#director" className="hover:text-emerald-600 transition-colors">{t('nav_director')}</a>
+              </nav>
+
+              {/* Controls */}
+              <div className="flex items-center gap-3">
+                {/* Language Switcher */}
+                <div className="flex items-center bg-slate-100 p-1 rounded-full border text-xs font-bold">
+                  <button onClick={() => setLang('ru')} className={`px-2.5 py-1 rounded-full ${lang === 'ru' ? 'bg-emerald-600 text-white' : 'text-slate-600'}`}>RU</button>
+                  <button onClick={() => setLang('uz')} className={`px-2.5 py-1 rounded-full ${lang === 'uz' ? 'bg-emerald-600 text-white' : 'text-slate-600'}`}>UZ</button>
+                </div>
+
+                {/* Admin button */}
+                <button onClick={() => setIsAdminMode(true)} className="text-xs font-semibold text-slate-500 hover:text-emerald-700 px-2 py-1">
+                  /admin
+                </button>
+
+                {/* Cart Button */}
+                <button
+                  onClick={() => setIsCartOpen(true)}
+                  className="px-4 py-2 rounded-full bg-emerald-600 text-white text-xs sm:text-sm font-bold shadow-md hover:bg-emerald-700 flex items-center gap-2 cursor-pointer"
+                >
+                  <span>{t('cart_title')}</span>
+                  {cartCount > 0 && (
+                    <span className="bg-white text-emerald-800 text-[11px] font-black rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+            </div>
+          </header>
+
+          {/* Hero Section */}
+          <section className="py-14 sm:py-20 bg-gradient-to-b from-emerald-50/70 to-[#f7faf8] border-b border-emerald-100">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
+                <span className="inline-block px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  {t('hero_badge')}
+                </span>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-tight font-display">
+                  {lang === 'uz' ? (
+                    <>Sog'ligingiz — <span className="text-emerald-600">bizning oliy qadriyatimiz</span></>
+                  ) : (
+                    <>Ваше здоровье — <span className="text-emerald-600">наша главная ценность</span></>
+                  )}
+                </h1>
+                <p className="text-sm sm:text-base text-slate-600 max-w-xl">
+                  {lang === 'uz' ? settings.hero_content.subtitle_uz : settings.hero_content.subtitle_ru}
+                </p>
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                  <a href="#catalog" className="px-7 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg">
+                    {t('hero_btn_catalog')}
+                  </a>
+                  <a href="#symptoms-guide" className="px-6 py-3.5 rounded-2xl bg-white border border-emerald-300 text-emerald-800 font-bold text-sm shadow-xs hover:bg-emerald-50">
+                    {lang === 'uz' ? "3D Tanlov" : "3D Подбор"}
+                  </a>
+                </div>
+              </div>
+
+              {/* Hero Featured Card */}
+              <div className="lg:col-span-5 flex justify-center">
+                <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-soft border border-emerald-100 text-center">
+                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wide block mb-2">Хит сезона</span>
+                  <div className="h-56 bg-slate-50 rounded-2xl p-4 flex items-center justify-center mb-4">
+                    <img src={products[0]?.image_url} className="max-h-full object-contain" />
+                  </div>
+                  <h3 className="font-bold text-lg text-slate-900">{lang === 'uz' ? products[0]?.name_uz : products[0]?.name_ru}</h3>
+                  <div className="text-emerald-600 font-black text-xl mt-1">{products[0]?.price.toLocaleString()} сум</div>
+                  <button onClick={() => addToCart(products[0])} className="mt-4 w-full py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs">
+                    {t('btn_add_to_cart')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 3D HUMAN ANATOMY & SYMPTOMS GUIDE SECTION */}
+          <section id="symptoms-guide" className="py-12 sm:py-16 relative overflow-hidden bg-gradient-to-b from-[#eaf6ee] via-[#f4faf6] to-[#f8faf9] border-b border-emerald-100/60">
+            
+            {/* Ambient medical spotlight directly behind 3D model */}
+            <div 
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[580px] h-[580px] rounded-full pointer-events-none" 
+              style={{
+                background: 'radial-gradient(circle, rgba(5,150,105,0.32) 0%, rgba(20,184,166,0.22) 45%, rgba(209,250,229,0) 75%)',
+                filter: 'blur(36px)'
+              }}
+            />
+            <div 
+              className="absolute top-[48%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] rounded-full pointer-events-none" 
+              style={{
+                background: 'radial-gradient(circle, rgba(16,185,129,0.4) 0%, rgba(6,78,59,0.25) 55%, transparent 75%)',
+                filter: 'blur(18px)'
+              }}
+            />
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              
+              <div className="text-center max-w-3xl mx-auto mb-8 space-y-2">
+                <span className="text-xs sm:text-sm font-bold text-emerald-800 uppercase tracking-widest bg-emerald-100/80 px-3.5 py-1 rounded-full border border-emerald-300">
+                  3D Анатомия и симптомы
+                </span>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight font-display">
+                  {lang === 'uz' ? "Salomatlik va go'zallikning qaysi sohasini tanlaysiz?" : "Какую сферу красоты и здоровья вы хотите улучшить?"}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-600">
+                  {lang === 'uz' ? "3D modeldagi tana nuqtasini yoki yon paneldagi sohani tanlang" : "Нажмите на анатомическую точку 3D модели или выберите интересующую зону"}
+                </p>
+              </div>
+
+              {/* 3-Column Layout: Left (4) + Center 3D Model with Hotspots + Right (4) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-2 items-center relative">
+                
+                {/* Left 4 Symptoms */}
+                <div className="lg:col-span-4 flex flex-col gap-3 order-2 lg:order-1">
+                  {LEFT_ANATOMY.map((sym) => {
+                    const isSelected = selectedCategory === sym.id;
+                    return (
+                      <div
+                        key={sym.id}
+                        onClick={() => handleSelectCategory(sym.id)}
+                        className={`flex items-center gap-3.5 p-3 rounded-2xl transition-all duration-200 cursor-pointer group select-none relative ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-emerald-700 to-teal-800 text-white shadow-xl scale-[1.02] ring-2 ring-emerald-300'
+                            : 'bg-white/80 backdrop-blur-sm hover:bg-white text-slate-900 hover:text-emerald-700 border border-emerald-100 shadow-xs'
+                        }`}
+                      >
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs ${isSelected ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'}`}>
+                          ●
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className={`text-[11px] font-bold uppercase tracking-wider ${isSelected ? 'text-emerald-200' : 'text-emerald-700'}`}>
+                            {lang === 'uz' ? sym.organ_uz : sym.organ_ru}
+                          </div>
+                          <div className="text-sm font-black leading-tight tracking-tight font-display">
+                            {lang === 'uz' ? sym.uz : sym.ru}
+                          </div>
+                        </div>
+                        <div className={`hidden lg:block ml-auto w-2.5 h-2.5 rounded-full ${isSelected ? 'bg-teal-300 scale-125 ring-2 ring-white' : 'bg-emerald-600 opacity-60'}`} />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Center 3D Model */}
+                <div className="lg:col-span-4 flex flex-col items-center justify-center order-1 lg:order-2">
+                  <div className="w-full h-[460px] sm:h-[500px] lg:h-[530px] relative flex items-center justify-center select-none">
+                    
+                    {/* SVG Connector Lines */}
+                    <svg className="hidden lg:block absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 400 530" preserveAspectRatio="none">
+                      <defs>
+                        <filter id="emeraldGlow">
+                          <feGaussianBlur stdDeviation="3.5" result="coloredBlur" />
+                          <feMerge>
+                            <feMergeNode in="coloredBlur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
+                      </defs>
+
+                      {LEFT_ANATOMY.map((sym) => (
+                        <path
+                          key={sym.id}
+                          d={sym.path}
+                          fill="none"
+                          stroke={selectedCategory === sym.id ? '#047857' : '#10b981'}
+                          strokeWidth={selectedCategory === sym.id ? '3.8' : '2.2'}
+                          strokeDasharray={selectedCategory === sym.id ? 'none' : '5 4'}
+                          opacity={selectedCategory === sym.id ? '1' : '0.85'}
+                          filter={selectedCategory === sym.id ? 'url(#emeraldGlow)' : 'none'}
+                          className="transition-all duration-300"
+                        />
+                      ))}
+
+                      {RIGHT_ANATOMY.map((sym) => (
+                        <path
+                          key={sym.id}
+                          d={sym.path}
+                          fill="none"
+                          stroke={selectedCategory === sym.id ? '#047857' : '#10b981'}
+                          strokeWidth={selectedCategory === sym.id ? '3.8' : '2.2'}
+                          strokeDasharray={selectedCategory === sym.id ? 'none' : '5 4'}
+                          opacity={selectedCategory === sym.id ? '1' : '0.85'}
+                          filter={selectedCategory === sym.id ? 'url(#emeraldGlow)' : 'none'}
+                          className="transition-all duration-300"
+                        />
+                      ))}
+                    </svg>
+
+                    {/* 3D Google Model Viewer */}
+                    <model-viewer
+                      id="bodyViewer"
+                      src="public/human_anatomy.glb"
+                      alt="BK Pharmacy 3D Human Anatomy Map"
+                      loading="eager"
+                      reveal="auto"
+                      auto-rotate
+                      auto-rotate-delay="0"
+                      rotation-per-second="14deg"
+                      camera-orbit="0deg 78deg 105%"
+                      shadow-intensity="1.5"
+                      shadow-softness="0.8"
+                      exposure="1.15"
+                      class="w-full h-full pointer-events-none"
+                    ></model-viewer>
+
+                    {/* 8 Hotspots */}
+                    <div className="absolute inset-0 pointer-events-auto z-20">
+                      {HOTSPOTS.map((hs) => (
+                        <button
+                          key={hs.id}
+                          onClick={() => handleSelectCategory(hs.id)}
+                          style={{ top: hs.top, left: hs.left }}
+                          className={`absolute -translate-x-1/2 -translate-y-1/2 hotspot-3d group cursor-pointer ${selectedCategory === hs.id ? 'active' : ''}`}
+                          title={lang === 'uz' ? hs.uz : hs.ru}
+                        >
+                          <div className="hotspot-point"></div>
+                          <div className="hotspot-pulse"></div>
+                          <span className="hotspot-tag">
+                            {lang === 'uz' ? hs.uz : hs.ru}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Right 4 Symptoms */}
+                <div className="lg:col-span-4 flex flex-col gap-3 order-3">
+                  {RIGHT_ANATOMY.map((sym) => {
+                    const isSelected = selectedCategory === sym.id;
+                    return (
+                      <div
+                        key={sym.id}
+                        onClick={() => handleSelectCategory(sym.id)}
+                        className={`flex items-center gap-3.5 p-3 rounded-2xl transition-all duration-200 cursor-pointer group select-none relative ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-teal-800 to-emerald-700 text-white shadow-xl scale-[1.02] ring-2 ring-emerald-300'
+                            : 'bg-white/80 backdrop-blur-sm hover:bg-white text-slate-900 hover:text-emerald-700 border border-emerald-100 shadow-xs'
+                        }`}
+                      >
+                        <div className={`hidden lg:block w-2.5 h-2.5 rounded-full ${isSelected ? 'bg-teal-300 scale-125 ring-2 ring-white' : 'bg-emerald-600 opacity-60'}`} />
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs ${isSelected ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'}`}>
+                          ●
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className={`text-[11px] font-bold uppercase tracking-wider ${isSelected ? 'text-emerald-200' : 'text-emerald-700'}`}>
+                            {lang === 'uz' ? sym.organ_uz : sym.organ_ru}
+                          </div>
+                          <div className="text-sm font-black leading-tight tracking-tight font-display">
+                            {lang === 'uz' ? sym.uz : sym.ru}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+              </div>
+
+            </div>
+          </section>
+
+          {/* Catalog Section */}
+          <section id="catalog" className="py-16 bg-[#f7faf8] flex-1">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              
+              <div className="text-center max-w-2xl mx-auto mb-10">
+                <h2 className="text-2xl sm:text-4xl font-black text-slate-900 font-display">{t('catalog_title')}</h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-2">{t('catalog_subtitle')}</p>
+              </div>
+
+              {/* Search and Category Filters */}
+              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-soft mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t('search_placeholder')}
+                  className="w-full sm:w-80 px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm outline-none focus:border-emerald-500"
+                />
+                
+                <div className="flex items-center gap-2">
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 outline-none"
+                  >
+                    {categories.map(c => (
+                      <option key={c.slug} value={c.slug}>
+                        {lang === 'uz' ? c.name_uz : c.name_ru}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 outline-none"
+                  >
+                    <option value="popular">По популярности</option>
+                    <option value="price_asc">Сначала дешевле</option>
+                    <option value="price_desc">Сначала дороже</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Products Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {paginatedProducts.map(prod => (
+                  <div key={prod.id} className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-soft flex flex-col justify-between hover:-translate-y-1 transition-transform">
+                    <div>
+                      <div className="h-44 bg-slate-50 rounded-2xl p-3 flex items-center justify-center cursor-pointer" onClick={() => setSelectedProduct(prod)}>
+                        <img src={prod.image_url} alt={prod.name_ru} className="max-h-full object-contain" />
+                      </div>
+                      <div className="mt-3 text-[11px] font-bold text-emerald-700 uppercase">{prod.dosage_ru}</div>
+                      <h4 className="font-bold text-sm text-slate-900 cursor-pointer" onClick={() => setSelectedProduct(prod)}>
+                        {lang === 'uz' ? prod.name_uz : prod.name_ru}
+                      </h4>
+                      <p className="text-xs text-slate-500 line-clamp-2 mt-1">{lang === 'uz' ? prod.description_uz : prod.description_ru}</p>
+                    </div>
+                    <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between">
+                      <div className="font-black text-base text-slate-900 font-display">
+                        {prod.price.toLocaleString()} {t('currency')}
+                      </div>
+                      <button onClick={() => addToCart(prod)} className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs">
+                        {t('btn_add_to_cart')}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          </section>
+
+          {/* Director Card */}
+          <section id="director" className="py-14 bg-white">
+            <div className="max-w-4xl mx-auto px-4">
+              <div className="bg-gradient-to-r from-emerald-900 to-teal-900 rounded-3xl p-8 text-white shadow-xl flex flex-col sm:flex-row items-center gap-6">
+                <div className="w-24 h-24 rounded-2xl bg-white/10 flex items-center justify-center text-3xl font-bold font-display shrink-0 border border-white/20">
+                  БШ
+                </div>
+                <div className="space-y-2 text-center sm:text-left">
+                  <span className="text-xs font-bold text-emerald-300 uppercase tracking-widest">{t('director_section_title')}</span>
+                  <h3 className="text-2xl font-black font-display">{settings.contacts.director_name}</h3>
+                  <p className="text-xs text-emerald-100">{settings.contacts.director_title_ru}</p>
+                  <div className="pt-2 flex flex-wrap gap-4 text-xs">
+                    <div>Тел: <a href="tel:+998974904665" className="font-bold hover:underline">+998 97 490 46 65</a></div>
+                    <div>Telegram: <a href="https://t.me/Botirbek_Baxtiyarovich" target="_blank" className="font-bold text-emerald-300 hover:underline">@Botirbek_Baxtiyarovich</a></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <footer className="bg-slate-900 text-slate-400 py-10 px-4 text-xs border-t border-slate-800">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
+              <p className="italic max-w-xl">{t('footer_warning')}</p>
+              <div>© {new Date().getFullYear()} {t('footer_rights')}</div>
+            </div>
+          </footer>
+
+          {/* Product Modal */}
+          {selectedProduct && (
+            <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setSelectedProduct(null)}>
+              <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4" onClick={e => e.stopPropagation()}>
+                <div className="h-48 bg-slate-50 rounded-2xl flex items-center justify-center p-4">
+                  <img src={selectedProduct.image_url} className="max-h-full object-contain" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">{lang === 'uz' ? selectedProduct.name_uz : selectedProduct.name_ru}</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">{lang === 'uz' ? selectedProduct.description_uz : selectedProduct.description_ru}</p>
+                <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl">
+                  <strong>{lang === 'uz' ? "Tarkibi:" : "Состав:"}</strong> {selectedProduct.composition_ru}
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <div className="text-xl font-black text-slate-900">{selectedProduct.price.toLocaleString()} {t('currency')}</div>
+                  <button onClick={() => { addToCart(selectedProduct); setSelectedProduct(null); }} className="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs">
+                    {t('btn_add_to_cart')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Cart Drawer */}
+          {isCartOpen && (
+            <div className="fixed inset-0 z-50 bg-black/60 flex justify-end" onClick={() => setIsCartOpen(false)}>
+              <div className="w-full max-w-md bg-white h-full p-6 flex flex-col justify-between shadow-2xl" onClick={e => e.stopPropagation()}>
+                <div>
+                  <div className="flex items-center justify-between pb-4 border-b">
+                    <h3 className="text-lg font-bold text-slate-900">{t('cart_title')} ({cartCount})</h3>
+                    <button onClick={() => setIsCartOpen(false)} className="text-slate-400 hover:text-slate-700 text-lg font-bold">✕</button>
+                  </div>
+                  
+                  <div className="py-4 space-y-3 max-h-[60vh] overflow-y-auto">
+                    {cart.map(item => (
+                      <div key={item.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border">
+                        <img src={item.image_url} className="w-12 h-12 object-contain" />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-bold truncate">{lang === 'uz' ? item.name_uz : item.name_ru}</h4>
+                          <div className="text-xs text-slate-500">{item.price.toLocaleString()} сум</div>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-white border rounded-lg p-1 text-xs">
+                          <button onClick={() => updateQty(item.id, -1)} className="px-1.5 font-bold">-</button>
+                          <span className="font-bold">{item.quantity}</span>
+                          <button onClick={() => updateQty(item.id, 1)} className="px-1.5 font-bold">+</button>
+                        </div>
+                      </div>
+                    ))}
+                    {cart.length === 0 && <p className="text-xs text-slate-400 text-center py-8">{t('cart_empty_title')}</p>}
+                  </div>
+                </div>
+
+                {cart.length > 0 && (
+                  <div className="pt-4 border-t space-y-3">
+                    <div className="flex justify-between font-black text-base text-slate-900">
+                      <span>{t('cart_total')}</span>
+                      <span>{cartTotal.toLocaleString()} {t('currency')}</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const name = prompt(lang === 'uz' ? "Ismingizni kiriting:" : "Укажите ваше имя:") || 'Клиент';
+                        const phone = prompt(lang === 'uz' ? "Telefon raqamingiz:" : "Укажите номер телефона:") || '+998';
+                        const address = prompt(lang === 'uz' ? "Yetkazish manzili:" : "Укажите адрес доставки:") || 'г. Ташкент';
+                        handleSendOrder({ name, phone, address });
+                      }}
+                      className="w-full py-3.5 rounded-2xl bg-emerald-600 text-white font-bold text-sm shadow-md hover:bg-emerald-700"
+                    >
+                      {t('btn_submit_order')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<BKPharmacyApp />);
+  </script>
+</body>
+</html>
