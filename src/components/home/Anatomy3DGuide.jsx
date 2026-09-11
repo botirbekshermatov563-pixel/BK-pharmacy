@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { useTranslation } from '../../i18n';
 import { HEALTH_NEEDS } from '../../data/healthNeeds';
 import { HealthAdvisorCharacter } from './HealthAdvisorCharacter';
@@ -67,7 +68,9 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
           </h2>
         </div>
 
-        {/* ---- Desktop: circular bubble ring around the character ---- */}
+        {/* ---- Desktop: circular bubble ring around the character ----
+            Each bubble radiates in one after another (scale+fade,
+            clockwise order) instead of all popping in at once. */}
         <div className="hidden lg:block relative mx-auto" style={{ width: '100%', maxWidth: 900, height: 560 }}>
           <div className="absolute inset-0 flex items-center justify-center">
             <HealthAdvisorCharacter className="w-64 xl:w-72 h-auto" />
@@ -79,11 +82,15 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
             const isSelected = selectedCategory === item.id;
             const justify = pos.align === 'left' ? 'flex-start' : pos.align === 'right' ? 'flex-end' : 'center';
             return (
-              <button
+              <motion.button
                 key={item.id}
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ type: 'spring', stiffness: 220, damping: 20, delay: i * 0.07 }}
                 onClick={() => handleSelect(item.id)}
-                style={{ top: `${pos.top}%`, left: `${pos.left}%`, transform: 'translate(-50%, -50%)', justifyContent: justify }}
-                className={`absolute flex items-center gap-2 pl-2.5 pr-4 py-2 rounded-full border shadow-soft transition-all duration-300 cursor-pointer whitespace-nowrap group ${
+                style={{ top: `${pos.top}%`, left: `${pos.left}%`, translateX: '-50%', translateY: '-50%', justifyContent: justify }}
+                className={`absolute flex items-center gap-2 pl-2.5 pr-4 py-2 rounded-full border shadow-soft transition-colors duration-300 cursor-pointer whitespace-nowrap group ${
                   isSelected
                     ? `${item.solid} border-transparent text-white shadow-lift scale-105`
                     : `bg-white/95 backdrop-blur-sm border-slate-200 hover:border-transparent hover:text-white ${item.solidHover} text-slate-800`
@@ -97,7 +104,7 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
                 <span className="text-xs font-bold">
                   {lang === 'uz' ? item.title_uz : item.title_ru}
                 </span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -106,14 +113,18 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
         <div className="lg:hidden flex flex-col items-center">
           <HealthAdvisorCharacter className="w-44 sm:w-52 h-auto mb-6" />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full">
-            {HEALTH_NEEDS.map((item) => {
+            {HEALTH_NEEDS.map((item, i) => {
               const Icon = item.icon;
               const isSelected = selectedCategory === item.id;
               return (
-                <button
+                <motion.button
                   key={item.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 24, delay: i * 0.05 }}
                   onClick={() => handleSelect(item.id)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-full border shadow-xs transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-full border shadow-xs transition-colors cursor-pointer ${
                     isSelected
                       ? `${item.solid} border-transparent text-white`
                       : 'bg-white border-slate-200 text-slate-800'
@@ -127,7 +138,7 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
                   <span className="text-[11px] font-bold leading-tight text-left">
                     {lang === 'uz' ? item.shortTitle_uz : item.shortTitle_ru}
                   </span>
-                </button>
+                </motion.button>
               );
             })}
           </div>

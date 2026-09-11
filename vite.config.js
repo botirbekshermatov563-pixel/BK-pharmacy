@@ -8,6 +8,13 @@ export default defineConfig({
   // 404 once deployed.
   base: '/BK-pharmacy/',
   plugins: [react()],
+  // `motion/react`'s dep-pre-bundling occasionally splits its internal
+  // `motion` factory into a separate chunk from its usage under esbuild,
+  // throwing "motion is not defined" at runtime. Forcing it into
+  // optimizeDeps keeps it as one consistently-bundled chunk.
+  optimizeDeps: {
+    include: ['motion/react']
+  },
   server: {
     port: 3000,
     open: true

@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { useTranslation } from '../../i18n';
 import { ArrowRight } from 'lucide-react';
 import { HEALTH_NEEDS } from '../../data/healthNeeds';
@@ -40,16 +41,21 @@ export const NeedsSelector = ({ selectedCategory, onSelectCategory, products = [
           </p>
         </div>
 
-        {/* 8 Needs Grid */}
+        {/* 8 Needs Grid — enters card by card as it scrolls into view,
+            rather than popping in all at once. */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {NEEDS.map((item) => {
+          {NEEDS.map((item, i) => {
             const Icon = item.icon;
             const isSelected = selectedCategory === item.id;
             return (
-              <div
+              <motion.div
                 key={item.id}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ type: 'spring', stiffness: 260, damping: 24, delay: (i % 4) * 0.06 }}
                 onClick={() => handleClick(item.id)}
-                className={`p-5 sm:p-6 rounded-2xl border transition-all duration-300 cursor-pointer group flex flex-col justify-between ${
+                className={`p-5 sm:p-6 rounded-2xl border transition-colors duration-300 cursor-pointer group flex flex-col justify-between ${
                   isSelected
                     ? `${item.selected} text-white shadow-lg scale-[1.02]`
                     : `bg-[#fbfdfc] hover:bg-white border-slate-200/80 ${item.accentBorder} hover:shadow-soft`
@@ -89,7 +95,7 @@ export const NeedsSelector = ({ selectedCategory, onSelectCategory, products = [
                   <span>{lang === 'uz' ? "Preparatlarni ko'rish" : "Подобрать"}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

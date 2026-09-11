@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion } from 'motion/react';
 import { useTranslation } from '../../i18n';
 import { ProductCard } from './ProductCard';
 import { Pagination } from './Pagination';
@@ -95,9 +96,6 @@ export const CatalogSection = ({
           <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight font-display">
             {t('catalog_title')}
           </h2>
-          <p className="text-sm sm:text-base text-slate-600">
-            {t('catalog_subtitle')}
-          </p>
         </div>
 
         {/* Controls Bar: Search & Sort */}
@@ -169,12 +167,26 @@ export const CatalogSection = ({
           })}
         </div>
 
-        {/* Product Cards Grid */}
+        {/* Product Cards Grid — re-enters card by card whenever the
+            category/search/sort changes (key={selectedCategory}), so
+            arriving here from a "Подбор по потребностям" click feels like
+            a deliberate, smooth landing on the matching medicines rather
+            than an instant, jarring swap. */}
         {currentProducts.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {currentProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+            <div
+              key={`${selectedCategory}-${currentPage}`}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            >
+              {currentProducts.map((product, i) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 24, delay: (i % 4) * 0.05 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
               ))}
             </div>
 
