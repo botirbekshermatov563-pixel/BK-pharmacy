@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from '../../i18n';
 import { useCart } from '../../context/CartContext';
-import { X, Plus, Minus, Check, Star, ShieldCheck, FileText, Pill, AlertCircle } from 'lucide-react';
+import { X, Plus, Minus, Check, Star, ShieldCheck, FileText, Pill, AlertCircle, Heart } from 'lucide-react';
 
 export const ProductModal = () => {
   const { lang, t } = useTranslation();
-  const { selectedProduct, setSelectedProduct, addToCart, cart } = useCart();
+  const { selectedProduct, setSelectedProduct, addToCart, cart, isWishlisted, toggleWishlist } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('desc'); // 'desc', 'composition', 'usage'
 
@@ -18,6 +18,7 @@ export const ProductModal = () => {
 
   const inCartItem = cart.find(item => item.id === selectedProduct.id);
   const inCartCount = inCartItem ? inCartItem.quantity : 0;
+  const liked = isWishlisted(selectedProduct.id);
 
   const handleAddToCart = () => {
     addToCart(selectedProduct, quantity);
@@ -38,14 +39,26 @@ export const ProductModal = () => {
         onClick={(e) => e.stopPropagation()}
       >
         
-        {/* Close Button */}
-        <button
-          onClick={() => setSelectedProduct(null)}
-          className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
-          aria-label="Close modal"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        {/* Wishlist + Close Buttons */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+          <button
+            onClick={() => toggleWishlist(selectedProduct.id)}
+            aria-pressed={liked}
+            aria-label={liked ? (lang === 'uz' ? "Sevimlilardan olib tashlash" : "Убрать из избранного") : (lang === 'uz' ? "Sevimlilarga qo'shish" : "Добавить в избранное")}
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+              liked ? 'bg-rose-500 text-white hover:bg-rose-600' : 'bg-slate-100 text-slate-500 hover:text-rose-500 hover:bg-rose-50'
+            }`}
+          >
+            <Heart className={`w-4.5 h-4.5 ${liked ? 'fill-white' : ''}`} />
+          </button>
+          <button
+            onClick={() => setSelectedProduct(null)}
+            className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-6 sm:p-8">
           

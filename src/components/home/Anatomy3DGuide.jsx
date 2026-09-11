@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { X } from 'lucide-react';
 import { useTranslation } from '../../i18n';
 import { HEALTH_NEEDS } from '../../data/healthNeeds';
 import { HealthAdvisorCharacter } from './HealthAdvisorCharacter';
@@ -33,8 +34,10 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
     }
     onSelectCategory(id);
     const el = document.getElementById('catalog');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+
+  const selectedNeed = HEALTH_NEEDS.find((n) => n.id === selectedCategory);
 
   return (
     <section id="symptoms-guide" className="py-14 sm:py-20 relative overflow-hidden border-b border-emerald-100/60">
@@ -66,6 +69,19 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
           <h2 className="text-2xl sm:text-3xl lg:text-[2.6rem] font-bold text-slate-900 tracking-tight font-editorial">
             {lang === 'uz' ? "O'z salomatlik va go'zallik formulangizni toping" : "Найдите свою формулу здоровья и красоты"}
           </h2>
+
+          {/* Active-need chip — click (or click the bubble again) to back out */}
+          {selectedNeed && (
+            <div className="flex justify-center pt-1">
+              <button
+                onClick={() => onSelectCategory('all')}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-white transition-transform hover:scale-105 cursor-pointer ${selectedNeed.solid}`}
+              >
+                <span>{lang === 'uz' ? selectedNeed.shortTitle_uz : selectedNeed.shortTitle_ru}</span>
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* ---- Desktop: circular bubble ring around the character ----

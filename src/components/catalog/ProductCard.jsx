@@ -1,14 +1,15 @@
 import React from 'react';
 import { useTranslation } from '../../i18n';
 import { useCart } from '../../context/CartContext';
-import { Plus, Check, Star, ShieldCheck, Eye } from 'lucide-react';
+import { Plus, Check, Star, ShieldCheck, Eye, Heart } from 'lucide-react';
 
 export const ProductCard = ({ product }) => {
   const { lang, t } = useTranslation();
-  const { cart, addToCart, setSelectedProduct } = useCart();
+  const { cart, addToCart, setSelectedProduct, isWishlisted, toggleWishlist } = useCart();
 
   const cartItem = cart.find(item => item.id === product.id);
   const inCartCount = cartItem ? cartItem.quantity : 0;
+  const liked = isWishlisted(product.id);
 
   const getBadgeStyle = (type) => {
     switch (type) {
@@ -57,6 +58,23 @@ export const ProductCard = ({ product }) => {
             className="max-h-full max-w-full object-contain drop-shadow-sm group-hover:scale-106 transition-transform duration-300"
             loading="lazy"
           />
+
+          {/* Wishlist heart — toggles a locally-persisted "liked" list */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleWishlist(product.id);
+            }}
+            aria-pressed={liked}
+            aria-label={liked ? (lang === 'uz' ? "Sevimlilardan olib tashlash" : "Убрать из избранного") : (lang === 'uz' ? "Sevimlilarga qo'shish" : "Добавить в избранное")}
+            className={`absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer ${
+              liked
+                ? 'bg-rose-500 text-white hover:bg-rose-600'
+                : 'bg-white/90 backdrop-blur-sm text-slate-400 hover:text-rose-500 hover:bg-white'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${liked ? 'fill-white' : ''}`} />
+          </button>
 
           {/* Quick View overlay */}
           <div className="absolute inset-0 bg-emerald-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { useTranslation } from '../../i18n';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 import { HEALTH_NEEDS } from '../../data/healthNeeds';
+import { CatalogSection } from '../catalog/CatalogSection';
 
-export const NeedsSelector = ({ selectedCategory, onSelectCategory, products = [] }) => {
+export const NeedsSelector = ({ selectedCategory, onSelectCategory, products = [], categories = [] }) => {
   const { lang, t } = useTranslation();
 
   // Shared with Anatomy3DGuide so the two homepage sections agree on which
@@ -16,18 +17,26 @@ export const NeedsSelector = ({ selectedCategory, onSelectCategory, products = [
   // grid per topic — rather than jumping into a single product's modal.
   // Clicking one specific product card there (ProductCard.jsx) is what
   // opens its full info + "В корзину" (that already works correctly).
+  // The catalog now lives inside this same section (see below), so the
+  // "scroll" is a short, smooth hop rather than a jump across the page.
   const handleClick = (catId) => {
+    if (selectedCategory === catId) {
+      onSelectCategory('all');
+      return;
+    }
     onSelectCategory(catId);
     const catalogEl = document.getElementById('catalog');
     if (catalogEl) {
-      catalogEl.scrollIntoView({ behavior: 'smooth' });
+      catalogEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  const selectedNeed = NEEDS.find((n) => n.id === selectedCategory);
 
   return (
     <section id="needs" className="py-16 sm:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
           <span className="text-xs sm:text-sm font-bold text-emerald-700 uppercase tracking-widest bg-emerald-50 px-3.5 py-1 rounded-full border border-emerald-200">
@@ -39,6 +48,21 @@ export const NeedsSelector = ({ selectedCategory, onSelectCategory, products = [
           <p className="text-sm sm:text-base text-slate-600">
             {t('needs_subtitle')}
           </p>
+
+          {/* Active-need chip + reset — mirrors the ring's "click again to
+              back out" behavior for anyone arriving straight into this
+              grid without having used the circle above it. */}
+          {selectedNeed && (
+            <div className="flex justify-center pt-1">
+              <button
+                onClick={() => onSelectCategory('all')}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-white transition-transform hover:scale-105 cursor-pointer ${selectedNeed.solid}`}
+              >
+                <span>{lang === 'uz' ? selectedNeed.shortTitle_uz : selectedNeed.shortTitle_ru}</span>
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 8 Needs Grid — enters card by card as it scrolls into view,
@@ -98,6 +122,19 @@ export const NeedsSelector = ({ selectedCategory, onSelectCategory, products = [
               </motion.div>
             );
           })}
+        </div>
+
+        {/* Catalog: search, sort, category pills, results & pagination —
+            moved in here from the top-level page (it used to be its own
+            far-down section) so choosing a need flows straight into the
+            matching medicines without leaving this part of the page. */}
+        <div className="mt-14 sm:mt-16 pt-10 border-t border-slate-100">
+          <CatalogSection
+            products={products}
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={onSelectCategory}
+          />
         </div>
 
       </div>

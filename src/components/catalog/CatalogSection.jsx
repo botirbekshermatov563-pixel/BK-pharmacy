@@ -77,6 +77,8 @@ export const CatalogSection = ({
     setCurrentPage(1);
   };
 
+  const hasActiveFilters = selectedCategory !== 'all' || searchQuery.trim() !== '' || sortBy !== 'popular';
+
   const handleResetFilters = () => {
     onSelectCategory('all');
     setSearchQuery('');
@@ -85,22 +87,11 @@ export const CatalogSection = ({
   };
 
   return (
-    <section id="catalog" className="py-16 sm:py-24 bg-[#f8faf9] scroll-mt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
-          <span className="text-xs sm:text-sm font-bold text-emerald-700 uppercase tracking-widest bg-emerald-50 px-3.5 py-1 rounded-full border border-emerald-200">
-            {t('nav_catalog')}
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight font-display">
-            {t('catalog_title')}
-          </h2>
-        </div>
+    <div id="catalog" className="scroll-mt-24">
 
         {/* Controls Bar: Search & Sort */}
         <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-soft mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          
+
           {/* Search Input */}
           <div className="relative w-full md:w-96">
             <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -124,8 +115,8 @@ export const CatalogSection = ({
             )}
           </div>
 
-          {/* Sort & Count */}
-          <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto">
+          {/* Sort, Count & Reset */}
+          <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
             <div className="text-xs sm:text-sm text-slate-500 font-medium">
               {t('found_count')} <span className="font-bold text-slate-900">{filteredProducts.length}</span>
             </div>
@@ -143,6 +134,18 @@ export const CatalogSection = ({
                 <option value="name_asc">{t('sort_name_asc')}</option>
               </select>
             </div>
+
+            {/* "Показать все" — clears every active filter at once
+                (damaar.uz / World Medicine style reset chip) */}
+            {hasActiveFilters && (
+              <button
+                onClick={handleResetFilters}
+                className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>{lang === 'uz' ? "Barchasini ko'rsatish" : "Показать все"}</span>
+              </button>
+            )}
           </div>
 
         </div>
@@ -224,7 +227,6 @@ export const CatalogSection = ({
           </div>
         )}
 
-      </div>
-    </section>
+    </div>
   );
 };

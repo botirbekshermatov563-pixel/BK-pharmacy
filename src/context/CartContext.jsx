@@ -17,9 +17,34 @@ export const CartProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null); // For Quick View Modal
 
+  // Wishlist ("liked" products) — a plain array of product ids, mirroring
+  // the heart icon damaar.uz / World Medicine show on each catalog card.
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bk_wishlist');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
   useEffect(() => {
     localStorage.setItem('bk_cart', JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem('bk_wishlist', JSON.stringify(wishlist));
+  }, [wishlist]);
+
+  const toggleWishlist = (productId) => {
+    setWishlist(prev =>
+      prev.includes(productId)
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  const isWishlisted = (productId) => wishlist.includes(productId);
 
   const addToCart = (product, quantity = 1) => {
     setCart(prev => {
@@ -74,6 +99,9 @@ export const CartProvider = ({ children }) => {
         updateQuantity,
         removeFromCart,
         clearCart,
+        wishlist,
+        toggleWishlist,
+        isWishlisted,
         cartCount,
         cartTotal,
         isFreeDelivery,

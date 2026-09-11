@@ -8,7 +8,6 @@ import { Anatomy3DGuide } from './components/home/Anatomy3DGuide';
 import { NeedsSelector } from './components/home/NeedsSelector';
 import { TrustBadges } from './components/home/TrustBadges';
 import { DirectorCard } from './components/home/DirectorCard';
-import { CatalogSection } from './components/catalog/CatalogSection';
 import { ProductModal } from './components/modals/ProductModal';
 import { CartDrawer } from './components/modals/CartDrawer';
 import { AdminLayout } from './components/admin/AdminLayout';
@@ -125,25 +124,20 @@ export function App() {
           onSelectCategory={setSelectedCategory}
         />
 
-        {/* 2. Needs Selector Cards */}
+        {/* 2. Needs Selector Cards — the full catalog (search, sort,
+            category pills, results, pagination) is now rendered inside
+            this section, right below the 8 need cards. */}
         <NeedsSelector
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
           products={products}
-        />
-
-        {/* 3. Full Catalog Section with Search, Filter, Sort & Pagination */}
-        <CatalogSection
-          products={products}
           categories={categories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
         />
 
-        {/* 4. Trust Badges & Certificates (GMP, ISO) */}
+        {/* 3. Trust Badges & Certificates (GMP, ISO) */}
         <TrustBadges />
 
-        {/* 5. Executive Director Section (Шерматов Ботир Бахтиярович) */}
+        {/* 4. Executive Director Section (Шерматов Ботир Бахтиярович) */}
         <DirectorCard settings={settings} />
       </main>
 
