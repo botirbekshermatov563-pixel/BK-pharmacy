@@ -2,34 +2,21 @@ import React from 'react';
 import { useTranslation } from '../../i18n';
 import { ArrowRight } from 'lucide-react';
 import { HEALTH_NEEDS } from '../../data/healthNeeds';
-import { useCart } from '../../context/CartContext';
 
 export const NeedsSelector = ({ selectedCategory, onSelectCategory, products = [] }) => {
   const { lang, t } = useTranslation();
-  const { setSelectedProduct } = useCart();
 
   // Shared with Anatomy3DGuide so the two homepage sections agree on which
   // color represents which health concern (damaar.uz-style color coding).
   const NEEDS = HEALTH_NEEDS;
 
-  // damaar.uz-style click: go straight "inside" to the best-matching
-  // medicine for that need (its quick-view modal) instead of just filtering
-  // a list — the category filter is still synced underneath, so closing the
-  // modal leaves the catalog scoped to that need.
+  // damaar.uz-style click: filter the catalog to every medicine in this
+  // need and scroll straight to it — like damaar's "recommended products"
+  // grid per topic — rather than jumping into a single product's modal.
+  // Clicking one specific product card there (ProductCard.jsx) is what
+  // opens its full info + "В корзину" (that already works correctly).
   const handleClick = (catId) => {
     onSelectCategory(catId);
-
-    const candidates = products.filter((p) => p.category_id === catId);
-    if (candidates.length > 0) {
-      const best = [...candidates].sort(
-        (a, b) => (b.rating * b.reviews_count) - (a.rating * a.reviews_count)
-      )[0];
-      setSelectedProduct(best);
-      return;
-    }
-
-    // No product loaded yet for this category — fall back to scrolling to
-    // the (now filtered) catalog rather than opening an empty modal.
     const catalogEl = document.getElementById('catalog');
     if (catalogEl) {
       catalogEl.scrollIntoView({ behavior: 'smooth' });
