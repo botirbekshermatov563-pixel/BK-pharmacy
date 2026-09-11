@@ -23,7 +23,10 @@ export const HEALTH_NEEDS = [
     accentText: 'text-indigo-700 group-hover:text-indigo-800',
     accentBorder: 'hover:border-indigo-300',
     ring: 'ring-indigo-300',
-    dot: '#4f46e5'
+    dot: '#4f46e5',
+    // Symptom/keyword hints the chat consultant matches free-text against
+    // (lowercase, RU + UZ) — keep in sync with the concern this need covers.
+    keywords: ['сон', 'уснуть', 'бессонниц', 'стресс', 'нерв', 'тревог', 'устал голова', 'раздражит', 'uyqu', 'stress', 'asab', 'xavotir']
   },
   {
     id: 'immunity_energy',
@@ -43,7 +46,8 @@ export const HEALTH_NEEDS = [
     accentText: 'text-emerald-700 group-hover:text-emerald-800',
     accentBorder: 'hover:border-emerald-300',
     ring: 'ring-emerald-300',
-    dot: '#059669'
+    dot: '#059669',
+    keywords: ['устал', 'упадок сил', 'энергия', 'иммунитет', 'простуд', 'вирус', 'слаб', 'charchoq', 'energiya', 'immunitet', 'shamollash']
   },
   {
     id: 'vitamins_minerals',
@@ -63,7 +67,8 @@ export const HEALTH_NEEDS = [
     accentText: 'text-amber-700 group-hover:text-amber-800',
     accentBorder: 'hover:border-amber-300',
     ring: 'ring-amber-300',
-    dot: '#d97706'
+    dot: '#d97706',
+    keywords: ['кожа', 'волос', 'ногт', 'витамин', 'минерал', 'молодост', 'сияние', 'teri', 'soch', 'vitamin']
   },
   {
     id: 'joints_muscles',
@@ -83,7 +88,8 @@ export const HEALTH_NEEDS = [
     accentText: 'text-blue-700 group-hover:text-blue-800',
     accentBorder: 'hover:border-blue-300',
     ring: 'ring-blue-300',
-    dot: '#2563eb'
+    dot: '#2563eb',
+    keywords: ['сустав', 'кост', 'хруст', 'мышц', 'спин', 'колен', 'болят', 'bo\'g\'im', 'mushak', 'suyak']
   },
   {
     id: 'gastro_digestion',
@@ -103,7 +109,8 @@ export const HEALTH_NEEDS = [
     accentText: 'text-lime-700 group-hover:text-lime-800',
     accentBorder: 'hover:border-lime-300',
     ring: 'ring-lime-300',
-    dot: '#65a30d'
+    dot: '#65a30d',
+    keywords: ['желудок', 'живот', 'пищевар', 'жкт', 'изжог', 'вздутие', 'запор', 'oshqozon', 'ichak', 'qorin']
   },
   {
     id: 'women_health',
@@ -123,7 +130,8 @@ export const HEALTH_NEEDS = [
     accentText: 'text-rose-700 group-hover:text-rose-800',
     accentBorder: 'hover:border-rose-300',
     ring: 'ring-rose-300',
-    dot: '#e11d48'
+    dot: '#e11d48',
+    keywords: ['женск', 'беремен', 'гормон', 'цикл', 'материнств', 'ayol', 'homila', 'onalik']
   },
   {
     id: 'kids_health',
@@ -143,7 +151,8 @@ export const HEALTH_NEEDS = [
     accentText: 'text-sky-700 group-hover:text-sky-800',
     accentBorder: 'hover:border-sky-300',
     ring: 'ring-sky-300',
-    dot: '#0284c7'
+    dot: '#0284c7',
+    keywords: ['ребен', 'дет', 'малыш', 'сироп для', 'bola', 'farzand']
   },
   {
     id: 'veins_vessels',
@@ -163,6 +172,7 @@ export const HEALTH_NEEDS = [
     accentText: 'text-red-700 group-hover:text-red-800',
     accentBorder: 'hover:border-red-300',
     ring: 'ring-red-300',
-    dot: '#dc2626'
+    dot: '#dc2626',
+    keywords: ['вены', 'сосуд', 'ноги тяжел', 'варикоз', 'отек', 'tomir', 'venalar', 'oyoq og\'riq']
   }
 ];

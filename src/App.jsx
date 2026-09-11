@@ -10,6 +10,7 @@ import { TrustBadges } from './components/home/TrustBadges';
 import { DirectorCard } from './components/home/DirectorCard';
 import { ProductModal } from './components/modals/ProductModal';
 import { CartDrawer } from './components/modals/CartDrawer';
+import { ChatConsultant } from './components/chat/ChatConsultant';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { AdminLogin } from './components/admin/AdminLogin';
 
@@ -147,6 +148,10 @@ export function App() {
       {/* Modals & Drawers */}
       <ProductModal />
       <CartDrawer />
+
+      {/* Floating AI-style consultant — local symptom matcher, see
+          ChatConsultant.jsx for why it's not a connected LLM */}
+      <ChatConsultant products={products} contacts={settings.contacts} />
 
     </div>
   );
