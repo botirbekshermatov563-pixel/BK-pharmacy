@@ -26,6 +26,15 @@ export const AdminLayout = ({
   const { lang, setLang, t } = useTranslation();
   const { user, logout, isSupabaseConfigured } = useAuth();
   const [activeTab, setActiveTab] = useState('products'); // 'products', 'categories', 'orders', 'settings'
+  // Set by CategoriesTab ("view this product") to jump into the Products
+  // tab pre-filtered to that item, so admins can go category -> product ->
+  // edit in one click instead of hunting through the full table.
+  const [pendingProductSearch, setPendingProductSearch] = useState('');
+
+  const openProductInProductsTab = (productName) => {
+    setPendingProductSearch(productName);
+    setActiveTab('products');
+  };
 
   const NAV_ITEMS = [
     { id: 'products', label_ru: 'Товары', label_uz: 'Preparatlar', icon: Package },
@@ -137,13 +146,17 @@ export const AdminLayout = ({
               products={products}
               categories={categories}
               onReload={onReload}
+              initialSearch={pendingProductSearch}
+              onInitialSearchConsumed={() => setPendingProductSearch('')}
             />
           )}
 
           {activeTab === 'categories' && (
             <CategoriesTab
               categories={categories}
+              products={products}
               onReload={onReload}
+              onViewProduct={openProductInProductsTab}
             />
           )}
 

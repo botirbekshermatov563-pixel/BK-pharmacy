@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from '../../i18n';
 import { db } from '../../services/db';
 import { Plus, Edit2, Trash2, Search, Upload, X, Check, Image as ImageIcon, Star } from 'lucide-react';
 
-export const ProductsTab = ({ products = [], categories = [], onReload }) => {
+export const ProductsTab = ({ products = [], categories = [], onReload, initialSearch = '', onInitialSearchConsumed }) => {
   const { lang, t } = useTranslation();
   const [search, setSearch] = useState('');
   const [editingProduct, setEditingProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Arriving here from CategoriesTab's "view this product" shortcut —
+  // adopt the requested search term once, then let it go back to being a
+  // normal local search field.
+  useEffect(() => {
+    if (initialSearch) {
+      setSearch(initialSearch);
+      onInitialSearchConsumed?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialSearch]);
 
   // Form State for Add / Edit
   const [formData, setFormData] = useState({
