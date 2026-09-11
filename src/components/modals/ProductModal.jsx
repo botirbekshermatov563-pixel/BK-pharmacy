@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from '../../i18n';
 import { useCart } from '../../context/CartContext';
-import { X, Plus, Minus, Check, Star, ShieldCheck, FileText, Pill, AlertCircle, Heart } from 'lucide-react';
+import { X, Plus, Minus, Star, ShieldCheck, Sparkles, Heart } from 'lucide-react';
 
 export const ProductModal = () => {
   const { lang, t } = useTranslation();
   const { selectedProduct, setSelectedProduct, addToCart, cart, isWishlisted, toggleWishlist } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState('desc'); // 'desc', 'composition', 'usage'
 
   useEffect(() => {
     setQuantity(1);
-    setActiveTab('desc');
   }, [selectedProduct]);
 
   if (!selectedProduct) return null;
@@ -62,7 +60,8 @@ export const ProductModal = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-6 sm:p-8">
           
-          {/* Left Column: Image on soft pedestal */}
+          {/* Left Column: Image on soft pedestal (trust badges now live
+              as chips in the right column, so they're not duplicated) */}
           <div className="md:col-span-5 flex flex-col items-center justify-center">
             <div className="w-full h-64 sm:h-72 rounded-2xl bg-gradient-to-b from-slate-50 to-emerald-50/30 p-6 flex items-center justify-center border border-emerald-100/60">
               <img
@@ -71,31 +70,17 @@ export const ProductModal = () => {
                 className="max-h-full max-w-full object-contain drop-shadow-md"
               />
             </div>
-
-            {/* In stock and trust badges */}
-            <div className="w-full mt-4 flex items-center justify-between text-xs font-semibold text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>{selectedProduct.in_stock ? t('in_stock') : t('out_of_stock')}</span>
-              </span>
-              <span className="text-slate-500 font-normal">
-                GMP / ISO
-              </span>
-            </div>
           </div>
 
-          {/* Right Column: Title, Details, Tabs & Actions */}
-          <div className="md:col-span-7 flex flex-col justify-between space-y-4">
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-emerald-700 uppercase tracking-wide">
-                  {dosage}
-                </span>
-                <span className="text-slate-300">•</span>
-                <span className="text-xs text-slate-500">
-                  {form}
-                </span>
+          {/* Right Column: Title, Purchase & Details — all info shown
+              directly (no tab-clicking) like the reference layout. */}
+          <div className="md:col-span-7 flex flex-col space-y-4">
+
+            <div className="space-y-1.5">
+              {/* Eyebrow: the product's own benefit tagline, falling back
+                  to dosage/form if it doesn't have one */}
+              <div className="text-xs font-bold text-emerald-700 uppercase tracking-wide">
+                {(lang === 'uz' ? selectedProduct.badge_uz : selectedProduct.badge_ru) || `${dosage} • ${form}`}
               </div>
 
               <h3 className="text-2xl font-black text-slate-900 font-display tracking-tight">
@@ -105,12 +90,14 @@ export const ProductModal = () => {
               {/* Rating */}
               <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span>{selectedProduct.rating}</span>
-                <span className="text-slate-400 font-normal">({selectedProduct.reviews_count} {t('reviews_count')})</span>
+                <span>({selectedProduct.rating}/5)</span>
+                <span className="text-slate-400 font-normal">{selectedProduct.reviews_count} {t('reviews_count')}</span>
               </div>
+            </div>
 
-              {/* Price Row */}
-              <div className="pt-2 flex items-baseline gap-3">
+            {/* Price + Quantity + Add to Cart, grouped together up top */}
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+              <div className="flex items-baseline gap-3">
                 <span className="text-2xl sm:text-3xl font-black text-slate-900 font-display">
                   {Number(selectedProduct.price).toLocaleString()} {t('currency')}
                 </span>
@@ -120,107 +107,93 @@ export const ProductModal = () => {
                   </span>
                 )}
               </div>
-            </div>
 
-            {/* Content Tabs */}
-            <div className="pt-2">
-              <div className="flex border-b border-slate-200 gap-4 text-xs font-bold text-slate-500">
+              <div className="flex items-center gap-3">
+                {/* Quantity Selector */}
+                <div className="flex items-center border border-slate-200 rounded-2xl p-1 bg-white shrink-0">
+                  <button
+                    onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                    className="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 flex items-center justify-center text-slate-600 shadow-2xs transition-colors cursor-pointer"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="w-10 text-center text-sm font-bold text-slate-900 font-display">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => setQuantity(prev => prev + 1)}
+                    className="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 flex items-center justify-center text-slate-600 shadow-2xs transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
                 <button
-                  onClick={() => setActiveTab('desc')}
-                  className={`pb-2 transition-colors cursor-pointer ${
-                    activeTab === 'desc'
-                      ? 'border-b-2 border-emerald-600 text-emerald-700'
-                      : 'hover:text-slate-900'
-                  }`}
+                  onClick={handleAddToCart}
+                  className="flex-1 py-3 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  {lang === 'uz' ? "Qo'llanilishi" : "Показания"}
-                </button>
-                <button
-                  onClick={() => setActiveTab('composition')}
-                  className={`pb-2 transition-colors cursor-pointer ${
-                    activeTab === 'composition'
-                      ? 'border-b-2 border-emerald-600 text-emerald-700'
-                      : 'hover:text-slate-900'
-                  }`}
-                >
-                  {t('modal_composition')}
-                </button>
-                <button
-                  onClick={() => setActiveTab('usage')}
-                  className={`pb-2 transition-colors cursor-pointer ${
-                    activeTab === 'usage'
-                      ? 'border-b-2 border-emerald-600 text-emerald-700'
-                      : 'hover:text-slate-900'
-                  }`}
-                >
-                  {lang === 'uz' ? "Qabul qilish tartibi" : "Инструкция"}
+                  <Plus className="w-4 h-4" />
+                  <span>
+                    {t('btn_add_to_cart')} ({Number(selectedProduct.price * quantity).toLocaleString()} {t('currency')})
+                  </span>
                 </button>
               </div>
 
-              {/* Tab Body */}
-              <div className="py-3 text-xs sm:text-sm text-slate-600 leading-relaxed max-h-36 overflow-y-auto pr-1">
-                {activeTab === 'desc' && (
-                  <div className="space-y-2">
-                    <p className="text-slate-700 font-medium">{desc}</p>
-                    {indications && (
-                      <div className="mt-2 text-xs text-slate-500">
-                        <strong className="text-slate-800">{t('modal_indications')}</strong> {indications}
-                      </div>
-                    )}
-                  </div>
-                )}
-                {activeTab === 'composition' && (
+              {inCartCount > 0 && (
+                <div className="text-center text-xs font-semibold text-emerald-700">
+                  ✓ {lang === 'uz' ? `Savatingizda allaqachon: ${inCartCount} dona` : `Уже в корзине: ${inCartCount} шт.`}
+                </div>
+              )}
+            </div>
+
+            {/* Trust chips — only claims we can actually stand behind
+                site-wide (GMP/ISO, in-stock); no fabricated certifications. */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                GMP / ISO
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold">
+                <Sparkles className="w-3.5 h-3.5" />
+                {lang === 'uz' ? "100% Original" : "100% Оригинал"}
+              </span>
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
+                selectedProduct.in_stock ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+              }`}>
+                {selectedProduct.in_stock ? t('in_stock') : t('out_of_stock')}
+              </span>
+            </div>
+
+            {/* Description + structured sections — always shown, nothing
+                hidden behind a tab click. */}
+            <div className="text-xs sm:text-sm text-slate-600 leading-relaxed space-y-3 max-h-64 overflow-y-auto pr-1 border-t border-slate-100 pt-4">
+              <p className="text-slate-700 font-medium">{desc}</p>
+
+              {composition && (
+                <div>
+                  <strong className="block text-slate-900 mb-1">{t('modal_composition')}:</strong>
                   <p className="bg-slate-50 p-3 rounded-xl border border-slate-100 font-mono text-xs">
-                    {composition || (lang === 'uz' ? "Tarkib bo'yicha ma'lumot qadoqda keltirilgan." : "Информация о составе указана на заводской упаковке.")}
+                    {composition}
                   </p>
-                )}
-                {activeTab === 'usage' && (
-                  <div className="space-y-2 bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 text-emerald-950 text-xs">
-                    <p><strong>{t('modal_usage')}</strong></p>
-                    <p>{usage || (lang === 'uz' ? "Shifokor tavsiyasiga ko'ra qo'llanilsin." : "Применять по назначению врача или согласно вложенной инструкции.")}</p>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
+
+              {indications && (
+                <div>
+                  <strong className="block text-slate-900 mb-1">
+                    {lang === 'uz' ? "Qo'llanilishi bo'yicha tavsiyalar:" : "Рекомендации к применению:"}
+                  </strong>
+                  <p>{indications}</p>
+                </div>
+              )}
+
+              {usage && (
+                <div className="bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 text-emerald-950">
+                  <strong className="block mb-1">{t('modal_usage')}:</strong>
+                  <p>{usage}</p>
+                </div>
+              )}
             </div>
-
-            {/* Stepper & Add to Cart */}
-            <div className="pt-4 border-t border-slate-100 flex items-center gap-3">
-              {/* Quantity Selector */}
-              <div className="flex items-center border border-slate-200 rounded-2xl p-1 bg-slate-50">
-                <button
-                  onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                  className="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 flex items-center justify-center text-slate-600 shadow-2xs transition-colors cursor-pointer"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="w-10 text-center text-sm font-bold text-slate-900 font-display">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() => setQuantity(prev => prev + 1)}
-                  className="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 flex items-center justify-center text-slate-600 shadow-2xs transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Add Button */}
-              <button
-                onClick={handleAddToCart}
-                className="flex-1 py-3 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>
-                  {t('btn_add_to_cart')} ({Number(selectedProduct.price * quantity).toLocaleString()} {t('currency')})
-                </span>
-              </button>
-            </div>
-
-            {inCartCount > 0 && (
-              <div className="text-center text-xs font-semibold text-emerald-700">
-                ✓ {lang === 'uz' ? `Savatingizda allaqachon: ${inCartCount} dona` : `Уже в корзине: ${inCartCount} шт.`}
-              </div>
-            )}
 
           </div>
 
