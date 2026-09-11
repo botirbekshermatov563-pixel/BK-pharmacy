@@ -110,34 +110,46 @@ export const HealthAdvisorCharacter = ({ className = '' }) => {
     <div ref={wrapperRef} className={`relative select-none ${className}`} aria-hidden="true">
       <svg viewBox="0 0 400 560" className="w-full h-full overflow-visible" style={{ transformOrigin: '50% 85%' }}>
         <defs>
+          {/* Emerald scrub top — a colored uniform reads much better against
+              a busy photo background than the earlier near-white coat did. */}
           <linearGradient id="coatGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#10b981" />
+            <stop offset="100%" stopColor="#047857" />
+          </linearGradient>
+          <linearGradient id="collarGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#ffffff" />
             <stop offset="100%" stopColor="#eef6f1" />
           </linearGradient>
           <linearGradient id="skinGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#f4c9a4" />
-            <stop offset="100%" stopColor="#e9b184" />
+            <stop offset="0%" stopColor="#f7c9a0" />
+            <stop offset="100%" stopColor="#e8a876" />
           </linearGradient>
           <linearGradient id="hairGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#3d2b23" />
-            <stop offset="100%" stopColor="#2a1c17" />
+            <stop offset="0%" stopColor="#4a2f1f" />
+            <stop offset="100%" stopColor="#2a1a10" />
           </linearGradient>
           <radialGradient id="badgeGlow" cx="50%" cy="35%" r="70%">
-            <stop offset="0%" stopColor="#34d399" />
-            <stop offset="100%" stopColor="#059669" />
+            <stop offset="0%" stopColor="#fbbf24" />
+            <stop offset="100%" stopColor="#d97706" />
           </radialGradient>
+          <filter id="charShadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#022c22" floodOpacity="0.28" />
+          </filter>
         </defs>
 
+        {/* Soft contact shadow + drop shadow on the whole figure so it sits
+            forward of the nature-photo backdrop instead of blending in. */}
+        <g filter="url(#charShadow)">
         {/* ---- Body (static) ---- */}
         <g>
           {/* Shadow under the figure */}
-          <ellipse cx="200" cy="536" rx="98" ry="16" fill="#059669" opacity="0.08" />
+          <ellipse cx="200" cy="536" rx="98" ry="16" fill="#022c22" opacity="0.14" />
 
           {/* Legs / trousers */}
-          <path d="M150 430 L146 540 L182 540 L192 440 Z" fill="#0f172a" opacity="0.88" />
-          <path d="M250 430 L254 540 L218 540 L208 440 Z" fill="#0f172a" opacity="0.88" />
+          <path d="M150 430 L146 540 L182 540 L192 440 Z" fill="#0f172a" />
+          <path d="M250 430 L254 540 L218 540 L208 440 Z" fill="#0f172a" />
 
-          {/* Torso — lab coat */}
+          {/* Torso — scrub top */}
           <path
             d="M200 210
                C 150 210 118 236 112 284
@@ -148,23 +160,23 @@ export const HealthAdvisorCharacter = ({ className = '' }) => {
                L 288 284
                C 282 236 250 210 200 210 Z"
             fill="url(#coatGrad)"
-            stroke="#d7e8de"
-            strokeWidth="2"
+            stroke="#065f46"
+            strokeWidth="2.5"
           />
-          {/* Coat lapels */}
-          <path d="M200 220 L172 300 L200 340 L228 300 Z" fill="#e4f2ea" opacity="0.7" />
+          {/* Collar / lapels — white for contrast against the emerald top */}
+          <path d="M200 220 L172 300 L200 340 L228 300 Z" fill="url(#collarGrad)" />
           {/* Coat center seam */}
-          <line x1="200" y1="222" x2="200" y2="446" stroke="#cfe3d8" strokeWidth="2" />
+          <line x1="200" y1="222" x2="200" y2="446" stroke="#065f46" strokeWidth="1.5" opacity="0.4" />
 
           {/* Arms */}
-          <path d="M114 288 C 92 306 80 344 84 390 L 108 396 C 106 356 114 322 132 300 Z" fill="url(#coatGrad)" stroke="#d7e8de" strokeWidth="2" />
-          <path d="M286 288 C 308 306 320 344 316 390 L 292 396 C 294 356 286 322 268 300 Z" fill="url(#coatGrad)" stroke="#d7e8de" strokeWidth="2" />
+          <path d="M114 288 C 92 306 80 344 84 390 L 108 396 C 106 356 114 322 132 300 Z" fill="url(#coatGrad)" stroke="#065f46" strokeWidth="2.5" />
+          <path d="M286 288 C 308 306 320 344 316 390 L 292 396 C 294 356 286 322 268 300 Z" fill="url(#coatGrad)" stroke="#065f46" strokeWidth="2.5" />
           {/* Hands */}
           <circle cx="94" cy="400" r="13" fill="url(#skinGrad)" />
           <circle cx="306" cy="400" r="13" fill="url(#skinGrad)" />
 
           {/* Brand badge on coat */}
-          <circle cx="200" cy="300" r="17" fill="url(#badgeGlow)" />
+          <circle cx="200" cy="300" r="17" fill="url(#badgeGlow)" stroke="#ffffff" strokeWidth="2" />
           <path d="M200 292v16M192 300h16" stroke="#ffffff" strokeWidth="3.4" strokeLinecap="round" />
 
           {/* Neck */}
@@ -174,10 +186,10 @@ export const HealthAdvisorCharacter = ({ className = '' }) => {
         {/* ---- Head (rotatable) ---- */}
         <g ref={headRef} style={{ transformOrigin: '200px 150px' }}>
           {/* Hair back */}
-          <path d="M136 150 C 132 96 164 60 200 60 C 236 60 268 96 264 150 L 264 168 C 264 122 236 96 200 96 C 164 96 136 122 136 168 Z" fill="url(#hairGrad)" />
+          <path d="M136 150 C 132 96 164 60 200 60 C 236 60 268 96 264 150 L 264 168 C 264 122 236 96 200 96 C 164 96 136 122 136 168 Z" fill="url(#hairGrad)" stroke="#1a0f08" strokeWidth="1" />
 
           {/* Face */}
-          <ellipse cx="200" cy="150" rx="58" ry="66" fill="url(#skinGrad)" />
+          <ellipse cx="200" cy="150" rx="58" ry="66" fill="url(#skinGrad)" stroke="#c98a5c" strokeWidth="1" />
 
           {/* Ears */}
           <ellipse cx="142" cy="152" rx="8" ry="12" fill="url(#skinGrad)" />
@@ -214,6 +226,7 @@ export const HealthAdvisorCharacter = ({ className = '' }) => {
           {/* Blush */}
           <ellipse cx="164" cy="172" rx="9" ry="5.5" fill="#f4a889" opacity="0.35" />
           <ellipse cx="236" cy="172" rx="9" ry="5.5" fill="#f4a889" opacity="0.35" />
+        </g>
         </g>
       </svg>
     </div>

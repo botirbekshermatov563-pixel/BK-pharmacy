@@ -129,6 +129,7 @@ export function App() {
         <NeedsSelector
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
+          products={products}
         />
 
         {/* 3. Full Catalog Section with Search, Filter, Sort & Pagination */}

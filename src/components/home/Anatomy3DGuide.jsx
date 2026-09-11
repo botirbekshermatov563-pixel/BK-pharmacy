@@ -21,14 +21,30 @@ const RING_POSITIONS = HEALTH_NEEDS.map((_, i) => {
 export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
   const { lang } = useTranslation();
 
+  // Selecting the same need a second time deselects it (toggle back to
+  // "all") instead of re-selecting it with no visible change; a fresh
+  // selection still scrolls down to the filtered catalog, but backing out
+  // shouldn't yank the page anywhere.
   const handleSelect = (id) => {
+    if (selectedCategory === id) {
+      onSelectCategory('all');
+      return;
+    }
     onSelectCategory(id);
     const el = document.getElementById('catalog');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section id="symptoms-guide" className="py-14 sm:py-20 relative overflow-hidden bg-gradient-to-b from-[#eaf6ee] via-[#f4faf6] to-[#f8faf9] border-b border-emerald-100/60">
+    <section id="symptoms-guide" className="py-14 sm:py-20 relative overflow-hidden border-b border-emerald-100/60">
+
+      {/* Nature photo backdrop — softened behind a brand-tinted gradient so
+          the bubbles/character stay fully legible on top of it. */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=1600&auto=format&fit=crop&q=70')" }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#eaf6ee]/94 via-[#f4faf6]/92 to-[#f8faf9]/95" />
 
       {/* Central medical spotlight behind the character */}
       <div
