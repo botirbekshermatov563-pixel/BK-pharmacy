@@ -43,7 +43,7 @@ export const HeroSection = ({ heroContent, featuredProducts = [] }) => {
             </div>
 
             {/* Main Slogan */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15] font-display">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight leading-[1.15] font-editorial">
               {lang === 'uz' ? (
                 <>
                   Sog'ligingiz — <br />

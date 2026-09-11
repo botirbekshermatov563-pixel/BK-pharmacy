@@ -26,3 +26,9 @@ dist-ssr
 # Environment variables
 .env
 .env.production
+
+# Local Claude Code tooling (agent skills, launch config, MCP config) —
+# personal dev-environment setup, not part of the deployed site
+.claude/
+.mcp.json
+skills-lock.json
