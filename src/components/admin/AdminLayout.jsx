@@ -5,6 +5,7 @@ import { ProductsTab } from './ProductsTab';
 import { CategoriesTab } from './CategoriesTab';
 import { OrdersTab } from './OrdersTab';
 import { SettingsTab } from './SettingsTab';
+import { BrandMark } from '../layout/BrandLogo';
 import { 
   Package, 
   Layers, 
@@ -51,9 +52,7 @@ export const AdminLayout = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold">
-              BK
-            </div>
+            <BrandMark className="w-9 h-9" spin={false} />
             <div>
               <div className="text-sm font-black text-slate-900 font-display flex items-center gap-1.5">
                 <span>BK Pharmacy</span>

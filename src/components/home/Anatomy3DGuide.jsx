@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { X } from 'lucide-react';
 import { useTranslation } from '../../i18n';
 import { HEALTH_NEEDS } from '../../data/healthNeeds';
-import { HealthAdvisorCharacter } from './HealthAdvisorCharacter';
+import { HealthMannequin } from './HealthMannequin';
 
 // 8 pill bubbles laid out on an ellipse around the character, starting at
 // the top and going clockwise — the damaar.uz / "World Medicine"-style
@@ -20,8 +20,25 @@ const RING_POSITIONS = HEALTH_NEEDS.map((_, i) => {
   };
 });
 
+// Only one layout (and so only one WebGL context) should be mounted at a time.
+const useIsDesktop = () => {
+  const query = "(min-width: 1024px)";
+  const [matches, setMatches] = useState(() => typeof window !== "undefined" && window.matchMedia(query).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const onChange = () => setMatches(mq.matches);
+    mq.addEventListener("change", onChange);
+    onChange();
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return matches;
+};
+
 export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
   const { lang } = useTranslation();
+  // Need currently hovered (bubble or organ) — drives the mannequin's glow.
+  const [hovered, setHovered] = useState(null);
+  const isDesktop = useIsDesktop();
 
   // Selecting the same need a second time deselects it (toggle back to
   // "all") instead of re-selecting it with no visible change; a fresh
@@ -38,6 +55,13 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
   };
 
   const selectedNeed = HEALTH_NEEDS.find((n) => n.id === selectedCategory);
+  const activeNeed = hovered || (selectedNeed ? selectedNeed.id : null);
+  const hoverProps = (id) => ({
+    onMouseEnter: () => setHovered(id),
+    onMouseLeave: () => setHovered(null),
+    onFocus: () => setHovered(id),
+    onBlur: () => setHovered(null)
+  });
 
   return (
     <section id="symptoms-guide" className="py-14 sm:py-20 relative overflow-hidden border-b border-emerald-100/60">
@@ -87,9 +111,10 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
         {/* ---- Desktop: circular bubble ring around the character ----
             Each bubble radiates in one after another (scale+fade,
             clockwise order) instead of all popping in at once. */}
-        <div className="hidden lg:block relative mx-auto" style={{ width: '100%', maxWidth: 900, height: 560 }}>
+        {isDesktop ? (
+        <div className="relative mx-auto" style={{ width: '100%', maxWidth: 900, height: 560 }}>
           <div className="absolute inset-0 flex items-center justify-center">
-            <HealthAdvisorCharacter className="w-64 xl:w-72 h-auto" />
+            <HealthMannequin className="w-72 xl:w-[21rem] h-auto" activeNeed={activeNeed} onPickNeed={handleSelect} onHoverNeed={setHovered} />
           </div>
 
           {HEALTH_NEEDS.map((item, i) => {
@@ -105,6 +130,7 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
                 viewport={{ once: true }}
                 transition={{ type: 'spring', stiffness: 220, damping: 20, delay: i * 0.07 }}
                 onClick={() => handleSelect(item.id)}
+                {...hoverProps(item.id)}
                 style={{ top: `${pos.top}%`, left: `${pos.left}%`, translateX: '-50%', translateY: '-50%', justifyContent: justify }}
                 className={`absolute flex items-center gap-2 pl-2.5 pr-4 py-2 rounded-full border shadow-soft transition-colors duration-300 cursor-pointer whitespace-nowrap group ${
                   isSelected
@@ -125,9 +151,9 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
           })}
         </div>
 
-        {/* ---- Mobile / tablet: character + compact bubble grid ---- */}
-        <div className="lg:hidden flex flex-col items-center">
-          <HealthAdvisorCharacter className="w-44 sm:w-52 h-auto mb-6" />
+        ) : (
+        <div className="flex flex-col items-center"> {/* mobile / tablet: mannequin + compact bubble grid */}
+          <HealthMannequin className="w-56 sm:w-64 h-auto mb-4" activeNeed={activeNeed} onPickNeed={handleSelect} onHoverNeed={setHovered} />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full">
             {HEALTH_NEEDS.map((item, i) => {
               const Icon = item.icon;
@@ -140,6 +166,7 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
                   viewport={{ once: true }}
                   transition={{ type: 'spring', stiffness: 260, damping: 24, delay: i * 0.05 }}
                   onClick={() => handleSelect(item.id)}
+                  {...hoverProps(item.id)}
                   className={`flex items-center gap-2 px-3 py-2.5 rounded-full border shadow-xs transition-colors cursor-pointer ${
                     isSelected
                       ? `${item.solid} border-transparent text-white`
@@ -159,6 +186,7 @@ export const Anatomy3DGuide = ({ selectedCategory, onSelectCategory }) => {
             })}
           </div>
         </div>
+        )}
 
       </div>
     </section>

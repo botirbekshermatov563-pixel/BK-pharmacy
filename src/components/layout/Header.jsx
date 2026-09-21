@@ -1,7 +1,8 @@
 import React from 'react';
 import { useTranslation } from '../../i18n';
 import { useCart } from '../../context/CartContext';
-import { ShoppingBag, ShieldCheck, Phone, Send, ShieldAlert } from 'lucide-react';
+import { ShoppingBag, Phone, Send, ShieldAlert } from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
 
 export const Header = ({ onNavigateAdmin }) => {
   const { lang, setLang, t } = useTranslation();
@@ -39,23 +40,8 @@ export const Header = ({ onNavigateAdmin }) => {
         <div className="flex items-center justify-between gap-4">
           
           {/* Logo */}
-          <a href="#" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-emerald-700 via-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-display">
-                  BK <span className="text-emerald-600">Pharmacy</span>
-                </span>
-              </div>
-              <span className="hidden sm:block text-[10.5px] font-semibold text-emerald-700 tracking-wider uppercase">
-                {t('brand_tagline')}
-              </span>
-            </div>
+          <a href="#" aria-label="BK Pharmacy">
+            <BrandLogo tagline={t('brand_tagline')} />
           </a>
 
           {/* Nav links on desktop */}
